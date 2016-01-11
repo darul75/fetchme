@@ -1,20 +1,3 @@
-// inspect DOM for all images tags
-var domElements = document.getElementsByTagName('img');
-// make it Array
-var imgs = [].slice.call(domElements);
-//
-
-var urls = [];
-var imgsFiltered = [];
-
-imgs.forEach(function(elt) {
-	if (urls.indexOf(elt.src) < 0 && elt.src.indexOf('.png') > 0) {
-		urls.push(elt.src);
-		imgsFiltered.push(elt);
-	}
-
-});
-
 if (!HTMLCanvasElement.prototype.toBlob) {
  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   value: function (callback, type, quality) {
@@ -37,12 +20,29 @@ if (!HTMLCanvasElement.prototype.toBlob) {
  });
 }
 
-var blobs = [], jj=0;
+var blobs = [], urls = [], imgsFiltered = [], jj=0;
+
+function fetchImages() {
+	// inspect DOM for all images tags
+	var domElements = document.getElementsByTagName('img');
+	// make it Array
+	var imgs = [].slice.call(domElements);
+	//	
+
+	imgs.forEach(function(elt) {
+		if (urls.indexOf(elt.src) < 0 && elt.src.indexOf('.png') > 0) {
+			urls.push(elt.src);
+			imgsFiltered.push(elt);
+		}
+
+	});
 
 
-// everything already loaded...
-for (var ii=0;ii<imgsFiltered.length;ii++) {
-	blobIt.apply(imgsFiltered[ii]);
+	// everything already loaded...
+	for (var ii=0;ii<imgsFiltered.length;ii++) {
+		blobIt.apply(imgsFiltered[ii]);
+	}
+
 }
 
 function blobIt() {
@@ -99,30 +99,13 @@ chrome.runtime.onMessage.addListener(
                 "from a content script:" + sender.tab.url :
                 "from the extension");
 
-        if (request.type == 'blob') {
+        if (request.type == 'fetchme-blob-images') {
+        	blobs = [], urls = [], imgsFiltered = [], jj=0;
+        	fetchImages();
+        }
+        else if (request.type == 'blob') {
         	var blob =  dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));         	
 
-			saveAs(blob, 'img-client.zip');				
-            
+			saveAs(blob, 'img-client.zip');            
         }
 });
-
-
-// extract only images url
-var urls = imgs.map(function(img) {
-	return img.src;
-});
-
-
-
-
-/*window.addEventListener("message", function(event) {
-  // We only accept messages from ourselves
-  if (event.source != window)
-    return;
-
-  if (event.data.type && (event.data.type == "FROM_PAGE")) {
-    console.log("Content script received: " + event.data.text);
-    port.postMessage(event.data.text);
-  }
-}, false);*/
