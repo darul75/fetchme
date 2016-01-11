@@ -2,7 +2,7 @@ if (!HTMLCanvasElement.prototype.toBlob) {
  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
   value: function (callback, type, quality) {
 
-  	var binStr = this.toDataURL('image/png'),
+  	var binStr = this.toDataURL(type),
 
     /*var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),*/
 
@@ -12,6 +12,8 @@ if (!HTMLCanvasElement.prototype.toBlob) {
     for (var i=0; i<len; i++ ) {
      arr[i] = binStr.charCodeAt(i);
     }
+
+    console.log(binStr);
 
     callback(binStr);
 
@@ -30,9 +32,16 @@ function fetchImages() {
 	//	
 
 	imgs.forEach(function(elt) {
-		if (urls.indexOf(elt.src) < 0 && elt.src.indexOf('.png') > 0) {
+		if (urls.indexOf(elt.src) < 0 && 
+			(elt.src.indexOf('.png') > 0 || elt.src.indexOf('.jpg') > 0) 
+			) {
+			var type = elt.src.indexOf('.png') > 0 ? 'image/png' : 'image/jpeg';
 			urls.push(elt.src);
-			imgsFiltered.push(elt);
+
+			imgsFiltered.push({
+				elt: elt,
+				type: type
+			});
 		}
 
 	});
@@ -40,38 +49,29 @@ function fetchImages() {
 
 	// everything already loaded...
 	for (var ii=0;ii<imgsFiltered.length;ii++) {
-		blobIt.apply(imgsFiltered[ii]);
+		blobIt(imgsFiltered[ii]);
 	}
 
 }
 
-function blobIt() {
+function blobIt(payload) {
 	var canvas = document.createElement("canvas");
-    canvas.width =this.width;
-    canvas.height =this.height;    
+    canvas.width = payload.elt.width;
+    canvas.height =payload.elt.height;    
 
     var ctx = canvas.getContext("2d");
-    ctx.drawImage(this, 0, 0);
+    ctx.drawImage(payload.elt, 0, 0);
 
  	canvas.toBlob(function(bin) {    	
-    	blobs[jj++] = bin.replace('data:image/png;base64,', '');
-        if (jj === imgsFiltered.length-1) {
+    	blobs[jj++] = {
+    		type: payload.type,
+    		data: bin.replace('data:'+ payload.type+';base64,', '')
+    	};
+    	
+        if (jj === imgsFiltered.length) {
 			sendMsg();
 		}
-    });
-
-   /* canvas.toBlob(function(blob) {    	
-    	var reader = new window.FileReader();
-		reader.readAsDataURL(blob); 
-		reader.onloadend = function() {
-            base64data = reader.result;                
-            console.log(base64data );
-            blobs[jj++] = base64data;
-            if (jj === imgsFiltered.length-1) {
-    			sendMsg();
-    		}
-		}    	
-    });*/
+    }, payload.type);
 }
 
 function sendMsg() {

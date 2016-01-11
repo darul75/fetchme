@@ -16,8 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var zip = new JSZip();    
       for (var ii=0; ii<blobs.length;ii++) {
-        var name = 'file' + ii +'.png';
-        zip.file(name, blobs[ii], {'base64': true});
+        var blob = blobs[ii];
+        var name = 'file' + ii + blob.type === 'image/png' ? '.png' : '.jpg';
+        zip.file(name, blobs[ii].data, {'base64': true});
       }  
       
       var blob = zip.generate({type:"blob"});
