@@ -1,3 +1,10 @@
+// extension mapping
+var extensions = {
+  'png': 'image/png',
+  'jpg': 'image/jpeg',
+  'jpeg': 'image/jpeg'
+};
+
 function renderStatus(statusText) {
   //document.getElementById('status').textContent = statusText;
 }
@@ -17,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var zip = new JSZip();    
       for (var ii=0; ii<blobs.length;ii++) {
         var blob = blobs[ii];
-        var name = 'file' + ii + blob.type === 'image/png' ? '.png' : '.jpg';
+        var name = 'file' + ii + '.' + extensions[blob.type];
         zip.file(name, blobs[ii].data, {'base64': true});
       }  
       
@@ -65,25 +72,3 @@ var blobToDataURL = function(blob, cb) {
   };
   reader.readAsDataURL(blob);
 };
-
-
-
-// data URI
-function downloadWithDataURI(zip) {
-  //window.location = "data:application/zip;base64," + zip.generate({type:"base64"});
-  chrome.runtime.sendMessage({
-    type: 'zip',
-    blobZip: zip.generate({type:"blob"})
-  });
-}
-
-window.addEventListener("message", function(event) {
-  // We only accept messages from ourselves
-  if (event.source != window)
-    return;
-
-  if (event.data.type && (event.data.type == "FROM_PAGE")) {
-    console.log("Content script received: " + event.data.text);
-    port.postMessage(event.data.text);
-  }
-}, false);
