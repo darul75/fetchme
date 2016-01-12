@@ -1,126 +1,222 @@
-// variables
-var blobs = [], urls = [], imgsFiltered = [], jj=0;
+"use strict";
 
 // extension mapping
 var extensions = {
+  'gif': 'image/png',
   'png': 'image/png',
-  'jpg': 'image/jpeg',
-  'jpeg': 'image/jpeg'
+  'jpg': 'image/png',
+  'jpeg': 'image/jpeg',
+  'svg': 'image/png'
 };
 
-// util toBlob
-if (!HTMLCanvasElement.prototype.toBlob) {
- Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
-  value: function (callback, type, quality) {
-
-    var binStr = this.toDataURL(type),
-
-    /*var binStr = atob( this.toDataURL(type, quality).split(',')[1] ),*/
-
-        len = binStr.length,
-        arr = new Uint8Array(len);
-
-    for (var i=0; i<len; i++ ) {
-     arr[i] = binStr.charCodeAt(i);
-    }
-
-    console.log(binStr);
-
-    callback(binStr);
-
-    //callback( new Blob( [arr], {type: type || 'image/png'} ) );
-  }
- });
-}
-
-// http://kangax.github.io/jstests/toDataUrl_mime_type_test/
-
-var getDomImages = function() {
+// retrieve all images
+function getDomImages() {
   // inspect DOM for all images tags
   var domElements = document.getElementsByTagName('img');
   // make it Array
   return [].slice.call(domElements);
-};
+}
 
-function fetchImages() {
-  // start process by looking for images
-  getDomImages().forEach(function(elt) {
+function getDomImageInfo() {
+  var urls = [];
+
+  return function(elt) {
+
     // img source
     var imgSrc = elt.src;
-    // image extension
+    // extension
     var extension = imgSrc.split('.').pop();
+    // filename
+    var filename = imgSrc.split('/').pop().replace('.'+extension, '');
 
     if (urls.indexOf(imgSrc) < 0 && extensions.hasOwnProperty(extension)) {      
       urls.push(elt.src);
 
-      imgsFiltered.push({
+      return {
         elt: elt,
+        extension: extension,
+        filename: filename,
         type: extensions[extension]
-      });
+      };
+
     }
-
-  });
-
-
-  // everything already loaded...
-  for (var ii=0;ii<imgsFiltered.length;ii++) {
-    blobIt(imgsFiltered[ii]);
-  }
-
+    
+  };
 }
 
-function blobIt(payload) {
-  var canvas = document.createElement("canvas");
-    canvas.width = payload.elt.width;
-    canvas.height =payload.elt.height;    
+function getProcessor(limit) {
 
-    var ctx = canvas.getContext("2d");
+  var blobs = [];
+
+  return function(imagePayload) {
+
+    // convert to dataUrl
+    var cb = function(err, payload, dataUrl) {
+      if (err) console.error(err);
+
+      if (!err) {          
+
+        var newBlob = {
+          data: dataUrl.replace('data:'+ payload.type+';base64,', ''),
+          extension: payload.extension,
+          filename: payload.filename,
+          type: payload.type
+        };
+
+        blobs.push(newBlob);
+
+      }
+
+      limit--;
+        
+      if (limit <= 0) {
+        sendMsg(blobs);
+      }
+
+    };
+
+    canvasImageToDataUrl(imagePayload, cb);
+
+  }  
+}
+
+function fetchImages() {
+  // start process by looking for images
+  var domImageInfoExtrator = getDomImageInfo();
+
+  var imgSpecs = getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+
+  console.log('images to be processed ' + imgSpecs.length)
+  var processor = getProcessor(imgSpecs.length);
+  
+  imgSpecs.forEach(processor);
+}
+
+function canvasImageToDataUrl(payload, cb) {
+  try {
+
+    // 1) NOT ONLY SAME DOMAIN
+    requestImage(payload.elt.src, function(img) {
+
+      var canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d');
+
+      // init
+      canvas.width = img.width;
+      canvas.height = img.height;
+
+      // fill with image  
+      ctx.drawImage(img, 0, 0);
+
+      canvas.canvasImagetoDataURL(cb, payload);
+
+    });
+
+
+    // 2) ONLY SAME DOMAIN
+
+  /*    var canvas = document.createElement('canvas'),
+    ctx = canvas.getContext('2d');
+
+    // init
+    canvas.width = payload.elt.width;
+    canvas.height =payload.elt.height;
+
+    // fill with image  
     ctx.drawImage(payload.elt, 0, 0);
 
-  canvas.toBlob(function(bin) {     
-      blobs[jj++] = {
-        type: payload.type,
-        data: bin.replace('data:'+ payload.type+';base64,', '')
-      };
-      
-        if (jj === imgsFiltered.length) {
-      sendMsg();
-    }
-    }, payload.type);
+    canvas.canvasImagetoDataURL(cb, payload);*/
+
+    // 3) CORS TRY
+  /*  var img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.src = payload.elt.src;
+    img.width = payload.elt.width;
+    img.height = payload.elt.height;
+
+    img.onload = function() {
+      var canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d');
+
+      // init
+      canvas.width = this.width;
+      canvas.height =this.height;
+
+      // fill with image  
+      ctx.drawImage(this, 0, 0);
+
+      canvas.canvasImagetoDataURL(cb, payload);
+    };    
+    img.onerror = function(e) {
+      cb(e);
+    };   */ 
+  }
+  catch (e) {
+    cb(new Error(e));
+  }   
 }
 
-function sendMsg() {
+// CHROME RUNTIME
+
+function sendMsg(blobs) {
   chrome.runtime.sendMessage({
     type:'ZIP_IMAGES',
     blobs: blobs
   });
 }
+ 
+// zip call back
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {     
+      if (request.type == 'fetchme-blob-images') {        
+        fetchImages();
+      }
+      else if (request.type == 'blob') {
+        var blob =  dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
+        saveAs(blob, 'img-client.zip');
+      }
+});
 
-function dataURLtoBlob(mime, byteString) {    
+// UTILS
 
-    var ab = new ArrayBuffer(byteString.length);
-    var ia = new Uint8Array(ab);
-    for (var i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-    }
-
-    var blob = new Blob([ia], {type: mime});
-    return blob;
+function requestImage(imageUrl, cb) {  
+  var req = new XMLHttpRequest();
+  req.onload = function() {
+    var img = new Image();
+    img.onload = function() {
+      URL.revokeObjectURL(this.src);
+      cb(img);
+    };
+    img.src = URL.createObjectURL(req.response);
+  };
+  req.open("get", imageUrl, true);
+  req.responseType = 'blob';
+  req.send();
 }
 
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
+function dataURLtoBlob(mime, byteString) {    
+  var ab = new ArrayBuffer(byteString.length);
+  var ia = new Uint8Array(ab);
+  for (var i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+  }
 
-        if (request.type == 'fetchme-blob-images') {
-          blobs = [], urls = [], imgsFiltered = [], jj=0;
-          fetchImages();
-        }
-        else if (request.type == 'blob') {
-          var blob =  dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));           
+  var blob = new Blob([ia], {type: mime});
+  return blob;
+}
 
-      saveAs(blob, 'img-client.zip');            
-        }
-});
+// toDataURL addon for canvas
+if (!HTMLCanvasElement.prototype.canvasImagetoDataURL) {
+ Object.defineProperty(HTMLCanvasElement.prototype, 'canvasImagetoDataURL', {
+  value: function (cb, payload, quality) {
+    var dataUrl = this.toDataURL(payload.type);    
+    cb(null, payload, dataUrl);
+  }
+ });
+}
+
+function compose(f, g) {
+  return function(x) {
+    f(g(x));
+  };
+};

@@ -10,7 +10,7 @@
   },
   "content_scripts": [
     { 
-      "matches": ["http://*/*"],
+      "matches": ["*://*/*"],
       "js": ["inspector.js", "FileSaver.min.js"]
     }
   ],

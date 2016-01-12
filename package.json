@@ -1,0 +1,6 @@
+{
+  "jspm": {},
+  "dependencies": {
+    "babel-standalone": "^1.0.0"
+  }
+}
