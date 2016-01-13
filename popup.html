@@ -13,26 +13,45 @@
         font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
         font-size: 100%;
       }
-      #status {
-        /* avoid an excessively wide status text */
-        white-space: pre;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        max-width: 400px;
+     #main {
+      width: 300px;
+     } 
+     .nav-main {
+      background: #222;
+     }     
+     .nav-main .nav-site-internal {
+      margin: 0 0 0 20px;
+     }
+     .nav-main a {
+        color: #e9e9e9;
+        text-decoration: none;
       }
-    </style>
+      li {
+        display: inline;
+      }
+      li.links {
+        margin: 0 0 0 5px;
+      }
+      .nav-main .nav-site a.active {
+        color: #fafafa;
+        border-bottom: 3px solid #cc7a6f;
+        background: #333;
+      }
+      .nav-main .nav-site a {
+        box-sizing: content-box;
+        padding: 0 10px;
+        line-height: 50px;
+        display: inline-block;
+        height: 50px;
+        color: #ddd;
+      }
+    </style>    
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-     -->     
-     <div>HELLO</div>
-    <script src="node_modules/babel-standalone/babel.min.js"></script>
-    <script src="FileSaver.js"></script> 
+    <div id='main'></div>    
+
+    <script src="FileSaver.js"></script>
     <script src="jszip.js"></script>
-    <script src="popup.js"></script>
+    <script src="dist/bundle.js"></script>
   </head>
   <body>
     <div id="status"></div>

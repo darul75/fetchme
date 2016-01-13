@@ -1,17 +1,8 @@
-// extension mapping
-var extensions = {
-  'gif': 'image/png',
-  'png': 'image/png',
-  'jpg': 'image/png',
-  'jpeg': 'image/jpeg',
-  'svg': 'image/png'
-};
+var handler = {};
 
-function loadChromeEventHandlers() {
-  chrome.runtime.onMessage.addListener(handleMessage);
-}
+module.exports = handler;
 
-function handleMessage(msg, sender) {
+handler.handleMessage = function(msg, sender) {
    // First, validate the message's structure
   // TODO
 
@@ -49,21 +40,7 @@ function handleMessage(msg, sender) {
     });
         
   }
-}
-
-loadChromeEventHandlers();
-
-// popup opens
-document.addEventListener('DOMContentLoaded', function() {
-
-  // launch job to be done
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-      chrome.tabs.sendMessage(tabs[0].id, {type: 'fetchme-blob-images'}, function(response) {
-          
-      });
-  });    
-
-});
+};
 
 var blobToDataURL = function(blob, cb) {
   var reader = new FileReader();

@@ -29,16 +29,33 @@ function getDomImageInfo() {
     // filename
     var filename = imgSrc.split('/').pop().replace('.'+extension, '');
 
-    if (urls.indexOf(imgSrc) < 0 && extensions.hasOwnProperty(extension)) {      
+    var result = {
+      elt: elt,
+      extension: extension,
+      height: elt.height,
+      filename: filename,
+      src: imgSrc,
+      type: 'image/png',
+      width: elt.width
+    };
+
+    if (urls.indexOf(imgSrc) < 0) {
       urls.push(elt.src);
 
-      return {
-        elt: elt,
-        extension: extension,
-        filename: filename,
-        type: extensions[extension]
-      };
+      if (extensions.hasOwnProperty(extension)) {
+        result.type = extensions[extension];
+      }
+      else if (isDataUrlImageSrc(imgSrc)) {        
+        result.dataUrl = true;
+        result.type = extensions[imgSrc.split(';base64,')[0].split('/')[1]];
+        // data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAA
+        result.data = imgSrc.split(';base64,')[1];
+      }
+      else { // extension not clear, generated image
 
+      }      
+
+      return result;
     }
     
   };
@@ -55,9 +72,10 @@ function getProcessor(limit) {
       if (err) console.error(err);
 
       if (!err) {          
+        var data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
 
         var newBlob = {
-          data: dataUrl.replace('data:'+ payload.type+';base64,', ''),
+          data: data,
           extension: payload.extension,
           filename: payload.filename,
           type: payload.type
@@ -75,8 +93,12 @@ function getProcessor(limit) {
 
     };
 
-    canvasImageToDataUrl(imagePayload, cb);
-
+    if (imagePayload.dataUrl) {
+      cb(null, imagePayload, imagePayload.data);
+    }
+    else {
+      canvasImageToDataUrl(imagePayload, cb);  
+    }    
   }  
 }
 
@@ -96,7 +118,8 @@ function canvasImageToDataUrl(payload, cb) {
   try {
 
     // 1) NOT ONLY SAME DOMAIN
-    requestImage(payload.elt.src, function(img) {
+    requestImage(payload.src, function(err, img) {
+      if (err) cb(err);
 
       var canvas = document.createElement('canvas'),
       ctx = canvas.getContext('2d');
@@ -107,6 +130,9 @@ function canvasImageToDataUrl(payload, cb) {
 
       // fill with image  
       ctx.drawImage(img, 0, 0);
+
+      payload.width = img.width;
+      payload.height = img.height;
 
       canvas.canvasImagetoDataURL(cb, payload);
 
@@ -156,6 +182,10 @@ function canvasImageToDataUrl(payload, cb) {
   }   
 }
 
+function isDataUrlImageSrc(imgSrc) {
+  return imgSrc.indexOf('data:image') >= 0;
+}
+
 // CHROME RUNTIME
 
 function sendMsg(blobs) {
@@ -167,14 +197,59 @@ function sendMsg(blobs) {
  
 // zip call back
 chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {     
-      if (request.type == 'fetchme-blob-images') {        
-        fetchImages();
+  function(request, sender, sendResponse) {
+    var type = request.type;     
+    if (type == 'fetchme-download-zip') {        
+      fetchImages();
+    }
+    else if (type === 'fetchme-all-images') {
+      // start process by looking for images
+      var domImageInfoExtrator = getDomImageInfo();
+
+      var imgSpecs = getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+
+      sendResponse(imgSpecs);
+    }
+    else if (type === 'fetchme-image-dataURI') {
+
+      var imagePayload = request.data;
+
+      // convert to dataUrl
+      var cb = function(err, payload, dataUrl) {
+        if (err) console.error(err);
+
+        if (!err) {
+          var data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+
+          var newBlob = {
+            data: data,
+            extension: payload.extension,
+            height: payload.height,
+            filename: payload.filename,
+            type: payload.type,
+            width: payload.width
+          };
+
+          sendResponse(newBlob);
+
+        }          
+
+      };
+
+      if (imagePayload.dataUrl) {
+        sendResponse(imagePayload);
       }
-      else if (request.type == 'blob') {
-        var blob =  dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
-        saveAs(blob, 'img-client.zip');
+      else {        
+        canvasImageToDataUrl(imagePayload, cb);
+        return true;
       }
+
+      
+    }
+    else if (type == 'blob') {
+      var blob = dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
+      saveAs(blob, 'img-client.zip');
+    }
 });
 
 // UTILS
@@ -185,9 +260,12 @@ function requestImage(imageUrl, cb) {
     var img = new Image();
     img.onload = function() {
       URL.revokeObjectURL(this.src);
-      cb(img);
+      cb(null, img);
     };
     img.src = URL.createObjectURL(req.response);
+  };
+  req.onerror = function(e) {
+    cb(e);
   };
   req.open("get", imageUrl, true);
   req.responseType = 'blob';

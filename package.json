@@ -1,6 +1,9 @@
 {
-  "jspm": {},
   "dependencies": {
-    "babel-standalone": "^1.0.0"
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-react": "^6.3.13",
+    "babelify": "^7.2.0",
+    "react": "^0.14.6",
+    "react-dom": "^0.14.6"
   }
 }
