@@ -103,8 +103,9 @@ function renderApp() {
     <Canvas img={img} />
     <p>Watch...,then download images</p>
     </div>,
-    document.getElementById('main')
-  );
+    document.getElementById('main'),
+    handleFetchImagesOnClick
+  );  
 }
 
 
