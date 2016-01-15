@@ -16,3 +16,5 @@ may appear only with 'sourceType: module' (3:0)
 well... ok forgot 
 
 > watchify --debug -t [ babelify --presets [ es2015 react ] ] src\popup.js -o dist/bundle.js
+
+https://github.com/sindresorhus/pretty-bytes
