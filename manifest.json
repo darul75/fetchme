@@ -11,7 +11,7 @@
   "content_scripts": [
     { 
       "matches": ["*://*/*"],
-      "js": ["inspector.js", "FileSaver.min.js"]
+      "js": ["dist/inspector.js", "FileSaver.min.js"]
     }
   ],
   "permissions": [

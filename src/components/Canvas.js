@@ -1,12 +1,10 @@
 "use strict";
 
 // LIBRARY
-var React = require('react');
-var ReactDOM = require('react-dom');
+import React from 'react';
+import ReactDOM from 'react-dom';
 
 // https://gist.github.com/sebmarkbage/6f7da234174ab9f64cce
-
-//HeaderLogo.prototype.displayName = 'HeaderLogo';
 
 class Canvas extends React.Component {
   constructor(props) {

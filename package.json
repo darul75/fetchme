@@ -5,5 +5,9 @@
     "babelify": "^7.2.0",
     "react": "^0.14.6",
     "react-dom": "^0.14.6"
+  },
+  "scripts": {
+  	"build-app": "watchify --debug -t [ babelify --presets [ es2015 react ] ] src/app.js -o dist/bundle.js",
+  	"build-cs": "watchify --debug -t [ babelify --presets [ es2015 react ] ] src/contentscripts/inspector.js -o dist/inspector.js"
   }
 }
