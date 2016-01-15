@@ -7,6 +7,8 @@ module.exports = (imageUrl, cb) => {
       URL.revokeObjectURL(img.src);
       cb(null, img);
     };
+
+    //const size = req.response.size;
     img.src = URL.createObjectURL(req.response);
   };
   req.onerror = (e) => {
