@@ -1,14 +1,20 @@
-module.exports = (imageUrl, cb) => {  
+import prettyBytes from 'pretty-bytes';
+
+// REQUEST IMAGE
+module.exports = (imageUrl, cb) => {
 
   const req = new XMLHttpRequest();
   req.onload = () => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);
-      cb(null, img);
+      const payload = {
+        img: img,
+        size: prettyBytes(req.response.size)
+      };
+      cb(null, payload);
     };
 
-    //const size = req.response.size;
     img.src = URL.createObjectURL(req.response);
   };
   req.onerror = (e) => {

@@ -1,29 +1,34 @@
 import fetcher from './fetcher';
 import sender from './chrome/sender';
 
-var processor = {};
+const processor = {};
 
 module.exports = processor;
+
+const getCanvas = () => document.createElement('canvas');
 
 processor.canvasImageToDataUrl = (payload, cb) => {
   try {
 
     // 1) NOT ONLY SAME DOMAIN
-    fetcher(payload.src, function(err, img) {
+    fetcher(payload.src, function(err, responsePayload) {
       if (err) cb(err);
 
-      var canvas = document.createElement('canvas'),
+      var img = responsePayload.img;
+
+      const canvas = getCanvas(),
       ctx = canvas.getContext('2d');
 
       // init
       canvas.width = img.width;
       canvas.height = img.height;
 
-      // fill with image  
+      // fill with image
       ctx.drawImage(img, 0, 0);
 
       payload.width = img.width;
       payload.height = img.height;
+      payload.size = responsePayload.size;
 
       canvas.canvasImagetoDataURL(cb, payload);
 
@@ -31,7 +36,7 @@ processor.canvasImageToDataUrl = (payload, cb) => {
   }
   catch (e) {
     cb(new Error(e));
-  }   
+  }
 };
 
 processor.getProcessor = (limit) => {
@@ -44,7 +49,7 @@ processor.getProcessor = (limit) => {
     const cb = (err, payload, dataUrl) => {
       if (err) console.error(err);
 
-      if (!err) {          
+      if (!err) {
         const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
 
         const newBlob = {
@@ -59,7 +64,7 @@ processor.getProcessor = (limit) => {
       }
 
       limit--;
-        
+
       if (limit <= 0) {
         sender(blobs);
       }
@@ -72,5 +77,5 @@ processor.getProcessor = (limit) => {
     else {
       processor.canvasImageToDataUrl(imagePayload, cb);
     }
-  }  
+  }
 };

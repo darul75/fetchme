@@ -1,58 +1,73 @@
 'use strict';
 
+// LOCAL DEPS
+import EVENTS from '../../common/events';
 import blober from './../blober';
 import dom from './../dom';
 import processor from './../processor';
 
-module.exports = (request, sender, sendResponse) => {
-  const type = request.type;     
-  if (type == 'fetchme-download-zip') {        
-    dom.fetchImages();
-  }
-  else if (type === 'fetchme-all-images') {
-    // start process by looking for images
-    const domImageInfoExtrator = dom.getDomImageInfo();
+// HANDLERS
 
-    const imgSpecs = dom.getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+// fetch image by request
+const fetchImagesByRequest = dom.fetchImages;
 
-    sendResponse(imgSpecs);
-  }
-  else if (type === 'fetchme-image-dataURI') {
+// fetch image by dom
+const fetchImagesByDom = (request, sender, sendResponse) => {
+  const domImageInfoExtrator = dom.getDomImageInfo();
+  const imgSpecs = dom.getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
 
-    const imagePayload = request.data;
+  sendResponse(imgSpecs);
+};
 
-    // convert to dataUrl
-    const cb = function(err, payload, dataUrl) {
-      if (err) console.error(err);
+//
+const getImageDataURI = (request, sender, sendResponse) => {
+  const imagePayload = request.data;
+  // convert to dataUrl
+  const cb = function(err, payload, dataUrl) {
+    if (err) console.error(err);
 
-      if (!err) {
-        const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+    if (!err) {
+      const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+      const newBlob = {
+        data: data,
+        extension: payload.extension,
+        height: payload.height,
+        filename: payload.filename,
+        type: payload.type,
+        width: payload.width
+      };
 
-        const newBlob = {
-          data: data,
-          extension: payload.extension,
-          height: payload.height,
-          filename: payload.filename,
-          type: payload.type,
-          width: payload.width
-        };
-
-        sendResponse(newBlob);
-
-      }          
-
-    };
-
-    if (imagePayload.dataUrl) {
-      sendResponse(imagePayload);
+      sendResponse(newBlob);
     }
-    else {        
-      processor.canvasImageToDataUrl(imagePayload, cb);
-      return true;
-    }    
+  };
+
+  if (imagePayload.dataUrl) {
+    sendResponse(imagePayload);
   }
-  else if (type == 'blob') {
-    const blob = blober.dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
-    saveAs(blob, 'img-client.zip');
+  else {
+    processor.canvasImageToDataUrl(imagePayload, cb);
+    return true;
   }
+};
+
+const receiveZipBlob = (request, sender, sendResponse) => {
+  const blob = blober.dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
+  saveAs(blob, 'img-client.zip');
+};
+
+var handler = {
+  ZIP_IMGS: fetchImagesByRequest,
+  GET_IMGS: fetchImagesByDom,
+  GET_IMG_DATA_URI: getImageDataURI,
+  RECEIVE_ZIP_BLOB: receiveZipBlob
+};
+
+module.exports = (request, sender, sendResponse) => {
+  const type = request.type;
+
+  if (handler.hasOwnProperty(type)) {
+    handler[type](request, sender, sendResponse);
+  }
+
+  return true;
 };

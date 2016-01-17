@@ -1,14 +1,18 @@
 'use strict';
 
+// LIBRARIES
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+// COMPONENTS
 import Actions from './components/Actions';
 import Canvas from './components/Canvas';
 import Links from './components/Links';
 import Header from './components/Header';
 
- import fire from './chrome/sender';
+// LOCAL DEPS
+import fire from './chrome/sender';
+import EVENTS from '../common/events';
 
 // for dev purpose
 const inExtension = chrome.runtime.onMessage;
@@ -26,25 +30,29 @@ if (!inExtension) {
   );
 }
 
-// actions handler
-const handleFetchImagesOnClick = () => fire(inExtension, render, 0);
-const handleDownloadImagesZipOnClick = () => fire(inExtension, render, 1);
-const handleImagePreviewOnClick = payload => fire(inExtension, render, 2, payload);
+// ACTIONS HANDLER
+
+// get all images from content script
+const handleFetchImagesOnClick = () => fire(inExtension, render, EVENTS.GET_IMGS);
+// get all images from content script and zip it
+const handleDownloadImagesZipOnClick = () => fire(inExtension, render, EVENTS.ZIP_IMGS);
+// get selected image details
+const handleImagePreviewOnClick = payload => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
 
 const render = (err, data) => {
 	if (data) {
 		if (data.links) links = data.links;
 		if (data.img) img = data.img;
-	}	
+	}
 
   ReactDOM.render(<div>
     <Header />
-    <Actions 
+    <Actions
       handleFetchImagesOnClick={handleFetchImagesOnClick}
       handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
     />
-    <Links 
-      links={links} 
+    <Links
+      links={links}
       handleImagePreviewOnClick={handleImagePreviewOnClick}
       />
     <Canvas img={img} />
@@ -52,7 +60,7 @@ const render = (err, data) => {
     </div>,
     document.getElementById('main'),
     handleFetchImagesOnClick
-  );  
+  );
 };
 
 // rendering

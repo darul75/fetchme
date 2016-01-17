@@ -18,3 +18,24 @@ well... ok forgot
 > watchify --debug -t [ babelify --presets [ es2015 react ] ] src\popup.js -o dist/bundle.js
 
 https://github.com/sindresorhus/pretty-bytes
+
+A; B    Run A and then B, regardless of success of A
+A && B  Run B if A succeeded
+A || B  Run B if A failed
+A &     Run A in background.
+
+
+up vote
+53
+down vote
+How about:
+
+http://stackoverflow.com/questions/3004811/how-do-you-run-multiple-programs-from-a-bash-script
+
+prog1 & prog2 && fg
+This will:
+
+Start prog1.
+Send it to background, but keep printing its output.
+Start prog2, and keep it in foreground, so you can close it with ctrl-c.
+When you close prog2, you'll return to prog1's foreground, so you can also close it with ctrl-c.
