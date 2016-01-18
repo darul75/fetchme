@@ -3,22 +3,24 @@
 import JSZip from 'jszip';
 import EVENTS from '../../common/events';
 
+var worker;
+
+if (window.Worker) {
+  worker = new Worker("dist/bundle-worker.js");
+}
+
 // gen
 const generateBlobAsZip = (request, sender, sendResponse) => {
 
   const blobs = request.blobs;
 
   console.time("generating zip worker");
-  if (window.Worker) { // Check if Browser supports the Worker api.
-    // Requries script name as input
-    var myWorker = new Worker("dist/bundle-worker.js");
-
-  // onkeyup could be used instead of onchange if you wanted to update the answer every time
-  // an entered value is changed, and you don't want to have to unfocus the field to update its .value
+  if (worker) {    
+    //var myWorker = new Worker("dist/bundle-worker.js");  
     
-    myWorker.postMessage([blobs]);
+    worker.postMessage([blobs]);
 
-    myWorker.onmessage = function(e) {
+    worker.onmessage = function(e) {
       // e.data;
       console.timeEnd("generating zip worker");
     };
