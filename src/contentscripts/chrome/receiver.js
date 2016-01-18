@@ -1,5 +1,8 @@
 'use strict';
 
+// LIBRARIES
+import fileSaver from '../utils/FileSaver/FileSaver.min';
+
 // LOCAL DEPS
 import EVENTS from '../../common/events';
 import blober from './../blober';
@@ -34,6 +37,7 @@ const getImageDataURI = (request, sender, sendResponse) => {
         height: payload.height,
         filename: payload.filename,
         type: payload.type,
+        size: payload.size,
         width: payload.width
       };
 
@@ -52,10 +56,10 @@ const getImageDataURI = (request, sender, sendResponse) => {
 
 const receiveZipBlob = (request, sender, sendResponse) => {
   const blob = blober.dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
-  saveAs(blob, 'img-client.zip');
+  fileSaver.saveAs(blob, 'img-client.zip');
 };
 
-var handler = {
+const handler = {
   ZIP_IMGS: fetchImagesByRequest,
   GET_IMGS: fetchImagesByDom,
   GET_IMG_DATA_URI: getImageDataURI,

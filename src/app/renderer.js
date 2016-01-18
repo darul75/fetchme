@@ -23,10 +23,10 @@ let links = [], img;
 // mock
 if (!inExtension) {
   links.push({
-    src:'https://facebook.github.io/react/img/logo.svg', filename:'test'}
+    src:'https://facebook.github.io/react/img/logo.svg', filename:'test', size:'100 Kb'}
   );
   links.push({
-    src:'https://facebook.github.io/react/img/logo.svg', filename:'test'}
+    src:'https://facebook.github.io/react/img/logo.svg', filename:'test', size:'100 Kb'}
   );
 }
 
@@ -39,7 +39,9 @@ const handleDownloadImagesZipOnClick = () => fire(inExtension, render, EVENTS.ZI
 // get selected image details
 const handleImagePreviewOnClick = payload => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
 
-const render = (err, data) => {
+const render = (err, data, init) => {
+  const cb = init ? handleFetchImagesOnClick : () => {};
+
 	if (data) {
 		if (data.links) links = data.links;
 		if (data.img) img = data.img;
@@ -59,7 +61,7 @@ const render = (err, data) => {
     <p>Watch...,then download images</p>
     </div>,
     document.getElementById('main'),
-    handleFetchImagesOnClick
+    cb
   );
 };
 

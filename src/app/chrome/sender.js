@@ -17,7 +17,10 @@ module.exports = (inExtension, cb, event, data) => {
        }
        else {
           const img = {
+            extension: response.extension,
+            filename: response.filename,
             height: response.height,
+            size: response.size,
             src: 'data:'+response.type+';base64,'+response.data,
             width: response.width
           };

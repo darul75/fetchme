@@ -10,14 +10,9 @@ class Actions extends React.Component {
 
     /*// https://facebook.github.io/react/blog/2015/01/27/react-v0.13.0-beta-1.html#autobinding
     this.handleOnClickEdit = this.handleOnClickEdit.bind(this);*/
-  }
-
-  componentWillMount() {
-    
   }  
 
   render() {
-
     return (
       <div className='nav-main'>
         <ul className='nav-site nav-site-internal'>

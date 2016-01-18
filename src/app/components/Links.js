@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 
 const Link = (props) => {
   return (
-    <li className='links' onClick={props.handleImagePreviewOnClick}>
+    <li className='link' onClick={props.handleImagePreviewOnClick}>
       <img height='16' src={props.src} title={props.label} width='16'/>
     </li>
   );
@@ -24,7 +24,12 @@ const Links = (props) => {
       key={key} label={link.filename} src={link.src} />);
   });
 
-  return <ul>{linkRows}</ul>;
+  return (
+    <fieldset>
+      <legend>Images</legend>
+      <ul className='links'>{linkRows}</ul>
+    </fieldset>
+  );
 }
 
 module.exports = Links;

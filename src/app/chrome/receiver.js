@@ -1,39 +1,76 @@
 'use strict';
 
+import JSZip from 'jszip';
 import EVENTS from '../../common/events';
 
-module.exports = (request, sender, sendResponse) => {
-   // First, validate the message's structure
-  // TODO
+// gen
+const generateBlobAsZip = (request, sender, sendResponse) => {
 
-  if (request.type === 'ZIP_IMAGES') {
-    const blobs = request.blobs;
+  const blobs = request.blobs;
 
-    const zip = new JSZip();
-    for (var ii=0; ii<blobs.length;ii++) {
-      const blob = blobs[ii];
-      const name = blob.filename+'_'+ii+'.'+blob.type.replace('image/', '');
-      zip.file(name, blobs[ii].data, {'base64': true});
-    }
+  console.time("generating zip worker");
+  if (window.Worker) { // Check if Browser supports the Worker api.
+    // Requries script name as input
+    var myWorker = new Worker("dist/bundle-worker.js");
 
-    const blob = zip.generate({type:"blob"});
+  // onkeyup could be used instead of onchange if you wanted to update the answer every time
+  // an entered value is changed, and you don't want to have to unfocus the field to update its .value
+    
+    myWorker.postMessage([blobs]);
 
-    blobToDataURL(blob, function(mime, dataUrl) {
-
-      var payload = {
-        type: EVENTS.RECEIVE_ZIP_BLOB,
-        blobUrl: URL.createObjectURL(blob),
-        blobMime: mime,
-        blobDataUrl: dataUrl
-      };
-
-      chrome.tabs.sendMessage(sender.tab.id, payload, function(response) {
-          console.log(response.farewell);
-      });
-
-    });
-
+    myWorker.onmessage = function(e) {
+      // e.data;
+      console.timeEnd("generating zip worker");
+    };
   }
+  
+  console.time("generating zip no worker");
+  buildZip(blobs, (err, payload) => {
+    console.timeEnd("generating zip no worker");
+    chrome.tabs.sendMessage(sender.tab.id, payload, function(response) {
+        console.log(response.farewell);
+    });
+  });
+
+};
+
+const buildZip = (blobs, cb) => {
+  const zip = new JSZip();
+  for (var ii=0; ii<blobs.length;ii++) {
+    const blob = blobs[ii];
+    const name = blob.filename+'_'+ii+'.'+blob.type.replace('image/', '');
+    zip.file(name, blobs[ii].data, {'base64': true});
+  }
+
+  const blob = zip.generate({type:'blob'});
+
+  blobToDataURL(blob, function(mime, dataUrl) {
+
+    var payload = {
+      type: EVENTS.RECEIVE_ZIP_BLOB,
+      blobUrl: URL.createObjectURL(blob),
+      blobMime: mime,
+      blobDataUrl: dataUrl
+    };
+
+    cb(null, payload);
+
+  });
+
+};
+
+const handler = {
+  GENERATE_BLOB_AS_ZIP: generateBlobAsZip  
+};
+
+module.exports = (request, sender, sendResponse) => {
+  const type = request.type;
+
+  if (handler.hasOwnProperty(type)) {
+    handler[type](request, sender, sendResponse);
+  }
+
+  return true;
 };
 
 const blobToDataURL = (blob, cb) => {

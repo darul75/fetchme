@@ -1,9 +1,4 @@
 <!doctype html>
-<!--
- This page is shown when the extension button is clicked, because the
- "browser_action" field in manifest.json contains the "default_popup" key with
- value "popup.html".
- -->
 <html>
   <head>
     <meta charset="utf-8">
@@ -11,9 +6,8 @@
     <title>Getting Started Extension's Popup</title>
 
     <div id='main'></div>
-
-    <script src="FileSaver.js"></script>
-    <script src="jszip.js"></script>
+    
+    <script src="dist/bundle-worker.js"></script>
     <script src="dist/bundle.js"></script>
   </head>
   <body>

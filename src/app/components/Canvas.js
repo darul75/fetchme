@@ -15,37 +15,48 @@ class Canvas extends React.Component {
   }
 
   componentDidMount() {
-    var ctx = ReactDOM.findDOMNode(this).getContext('2d');
+    let ctx = this.refs.canvas.getContext('2d');
     this.paint(ctx);
   }
 
   componentDidUpdate() {
-    var ctx = ReactDOM.findDOMNode(this).getContext('2d');
+    let ctx = this.refs.canvas.getContext('2d');
     //ctx.clearRect(0, 0, 200, 200);
     this.paint(ctx);
   }
 
-  paint(ctx) {  
+  paint(ctx) {
     if (!this.props.img) return;
 
     ctx.save();
-    var img = new Image;
-  img.onload = function(){
-    ctx.drawImage(img,0,0); // Or at whatever offset you like
-  };
-  img.src = this.props.img.src;    
+    let img = new Image;
+    img.onload = function(){
+      ctx.drawImage(img,0,0); // Or at whatever offset you like
+    };
+    img.src = this.props.img.src;
     ctx.restore();
   }
 
-  render() {
-    var width = 200;
-    var height = 200;
+  render() {    
+    let height = 200;
+    let filename = '';
+    let size = 'NA';
+    let width = 200;
+    let img = this.props.img;
 
-    if (this.props.img) {
-      width = this.props.img.width;
-      height = this.props.img.height;
+    if (img) {
+      filename = img.filename;
+      width = img.width;
+      height = img.height;
+      size = img.size ? img.size: size;
     }
-    return <canvas width={width} height={height} />;
+    return (
+      <fieldset>
+        <legend>Preview (click image)</legend>
+        <p>name: {filename} - size: {size} - width: {width} - height: {height}</p>
+        <canvas ref="canvas" width={width} height={height} />
+      </fieldset>
+    );
   }
 }
 

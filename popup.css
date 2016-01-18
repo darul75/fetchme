@@ -1,14 +1,32 @@
 body {
+  margin: 0;
+  height: 100%;
   font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
-  font-size: 100%;
+  font-size: 100%;  
+}
+
+li {
+  display: inline;
+}
+
+legend {
+  font-size: 0.8rem;
+  color: #ddd;
+}
+
+p {
+  margin: 0;  
+  font-size: 10px;
+  color: #ddd;
 }
 
 #main {
   width: 350px;
+  background: #222;
 }
 
 .nav-main {
-  background: #222;
+  
 }
 
 .nav-main .nav-site-internal {
@@ -20,11 +38,14 @@ body {
   text-decoration: none;
 }
 
-li {
-  display: inline;
+ul.links {
+  margin: 0;
+  padding: 0;
+  background: #222;
+  cursor: pointer;
 }
 
-li.links {
+li.link {
   margin: 0 0 0 5px;
 }
 .nav-main .nav-site a.active {

@@ -14,4 +14,4 @@ if (inExtension)
   loadChromeEventHandlers();
 
 // popup opens
-document.addEventListener('DOMContentLoaded', render);
+document.addEventListener('DOMContentLoaded', () => render(null, null, true));
