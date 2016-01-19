@@ -1,12 +1,12 @@
 "use strict";
 
 // LIBRARY
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 // https://gist.github.com/sebmarkbage/6f7da234174ab9f64cce
 
-class Canvas extends React.Component {
+class Canvas extends Component {
   constructor(props) {
     super(props);
 
@@ -39,12 +39,14 @@ class Canvas extends React.Component {
 
   render() {    
     let height = 200;
+    let extension = '';
     let filename = '';
     let size = 'NA';
     let width = 200;
     let img = this.props.img;
 
     if (img) {
+      extension = img.extension;
       filename = img.filename;
       width = img.width;
       height = img.height;
@@ -53,8 +55,9 @@ class Canvas extends React.Component {
     return (
       <fieldset>
         <legend>Preview (click image)</legend>
-        <p>name: {filename} - size: {size} - width: {width} - height: {height}</p>
-        <canvas ref="canvas" width={width} height={height} />
+        <p>name: {filename}.{extension} - size: {size} - width: {width} - height: {height}</p>
+        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={width} height={height}  />
+        <a href='#' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</a>
       </fieldset>
     );
   }

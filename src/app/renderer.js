@@ -34,10 +34,12 @@ if (!inExtension) {
 
 // get all images from content script
 const handleFetchImagesOnClick = () => fire(inExtension, render, EVENTS.GET_IMGS);
+// get specific image
+const handleFetchImageOnClick = (payload) => fire(inExtension, render, EVENTS.RECEIVE_IMAGE_BLOB, payload);
 // get all images from content script and zip it
 const handleDownloadImagesZipOnClick = () => fire(inExtension, render, EVENTS.ZIP_IMGS);
 // get selected image details
-const handleImagePreviewOnClick = payload => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
+const handleImagePreviewOnClick = (payload) => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
 
 const render = (err, data, init) => {
   const cb = init ? handleFetchImagesOnClick : () => {};
@@ -57,7 +59,7 @@ const render = (err, data, init) => {
       links={links}
       handleImagePreviewOnClick={handleImagePreviewOnClick}
       />
-    <Canvas img={img} />
+    <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />
     <p>Watch...,then download images</p>
     </div>,
     document.getElementById('main'),

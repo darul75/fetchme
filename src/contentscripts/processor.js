@@ -1,33 +1,45 @@
 import fetcher from './fetcher';
 import sender from './chrome/sender';
 
-const processor = {};
+const proc = {};
 
-module.exports = processor;
+module.exports = proc;
 
+/**
+ * getCanvas() returns a new canvas object
+ *
+ * @return {Element} a new canvas
+ */
 const getCanvas = () => document.createElement('canvas');
 
-processor.canvasImageToDataUrl = (payload, cb) => {
+/**
+ * canvasImageToDataUrl() returns a new canvas object
+ *
+ * @return {Element} a new canvas
+ */
+proc.convertImageContentToDataUrl = (payload, cb) => {
   try {
 
     // 1) NOT ONLY SAME DOMAIN
-    fetcher(payload.src, function(err, responsePayload) {
+    fetcher(payload.src, (err, responsePayload) => {
       if (err) cb(err);
 
-      var img = responsePayload.img;
+      const img = responsePayload.img;
 
       const canvas = getCanvas(),
       ctx = canvas.getContext('2d');
 
+      const {width, height} = img;
+
       // init
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = width;
+      canvas.height = height;
 
       // fill with image
       ctx.drawImage(img, 0, 0);
 
-      payload.width = img.width;
-      payload.height = img.height;
+      payload.width = width;
+      payload.height = height;
       payload.size = responsePayload.size;
 
       canvas.canvasImagetoDataURL(cb, payload);
@@ -39,10 +51,21 @@ processor.canvasImageToDataUrl = (payload, cb) => {
   }
 };
 
-processor.getProcessor = (limit) => {
-
+/**
+ * processImages() returns a new function to be used in forEach, map.. 
+ * will compute dataURI by http request if needed and callback when iteration finished
+ *
+ * @param {Number} number of images to process
+ * @return {Function} iteratee fn
+ */
+proc.processImages = (limit) => {
   const blobs = [];
 
+  /**
+  * anonymous() do the job for current image payload and callback if needed
+  *
+  * @param {imagePayload} current image
+  */
   return (imagePayload) => {
 
     // convert to dataUrl
@@ -75,7 +98,7 @@ processor.getProcessor = (limit) => {
       cb(null, imagePayload, imagePayload.data);
     }
     else {
-      processor.canvasImageToDataUrl(imagePayload, cb);
+      proc.convertImageContentToDataUrl(imagePayload, cb);
     }
   }
 };

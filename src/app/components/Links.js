@@ -1,5 +1,5 @@
 // LIBRARY
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
 const Link = (props) => {
@@ -14,22 +14,39 @@ const Link = (props) => {
 
 //HeaderLogo.prototype.displayName = 'HeaderLogo';
 
-const Links = (props) => {
-  const linkRows = [];
+class Links extends Component {
+  constructor(props) {
+    super(props);    
+  }  
 
-  props.links.forEach((link, idx) => {
-    const key = 'link_'+idx;
-    linkRows.push(<Link 
-      handleImagePreviewOnClick={props.handleImagePreviewOnClick.bind(this, link)}
-      key={key} label={link.filename} src={link.src} />);
-  });
+  componentDidUpdate(prevProps) {
+    if (this.props.links && this.props.links.length) {
+      this.props.handleImagePreviewOnClick(this.props.links[0]);
+    }
+  }
 
-  return (
-    <fieldset>
-      <legend>Images</legend>
-      <ul className='links'>{linkRows}</ul>
-    </fieldset>
-  );
-}
+  shouldComponentUpdate(nextProps) {
+    return this.props.links != nextProps.links;
+  }
+
+  render() {   
+    const linkRows = [];
+
+    this.props.links.forEach((link, idx) => {
+      const key = 'link_'+idx;
+      linkRows.push(<Link 
+        handleImagePreviewOnClick={this.props.handleImagePreviewOnClick.bind(this, link)}
+        key={key} label={link.filename} src={link.src} />);
+    });
+
+    return (
+      <fieldset>
+        <legend>Images</legend>
+        <ul className='links'>{linkRows}</ul>
+      </fieldset>
+    );
+
+  }  
+};
 
 module.exports = Links;

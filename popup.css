@@ -20,6 +20,13 @@ p {
   color: #ddd;
 }
 
+a {  
+  font-size: 13px;
+  color: #ddd;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
 #main {
   width: 350px;
   background: #222;

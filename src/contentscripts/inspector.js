@@ -29,9 +29,3 @@ if (!HTMLCanvasElement.prototype.canvasImagetoDataURL) {
   }
  });
 }
-
-function compose(f, g) {
-  return function(x) {
-    f(g(x));
-  };
-};

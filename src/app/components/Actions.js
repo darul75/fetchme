@@ -1,10 +1,10 @@
 "use strict";
 
 // LIBRARY
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-class Actions extends React.Component {
+class Actions extends Component {
   constructor(props) {
     super(props);
 

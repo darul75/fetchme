@@ -5,64 +5,70 @@ const dom = {};
 
 module.exports = dom;
 
-// retrieve all images
-// inspect DOM for all images tags and make it Array
+/**
+ * getDomImages() returns all DOM img tags
+ *
+ * @return {Array} DOM image elements
+ */
 dom.getDomImages = () => [].slice.call(document.getElementsByTagName('img'));
 
+/**
+ * getDomImageInfo() returns a new function to be used in forEach, map..
+ *
+ * @return {Function} anonymous fn
+ */
 dom.getDomImageInfo = () => {
   const urls = [];
 
-  return (elt) => {
-
-    // img source
+  /**
+   * @param {Object} current iteration element
+   * @param {NUmber} current iteration index
+   * returns {Object} imgInfo with relevant image details 
+   */
+  return (elt, idx) => {
+    
     const imgSrc = elt.src;
-    // extension
     const extension = imgSrc.split('.').pop();
-    // filename
-    const filename = imgSrc.split('/').pop().replace('.'+extension, '');
+    let filename = imgSrc.split('/').pop().replace('.'+extension, '');
+    if (extension.indexOf('svg') >= 0) {
+      filename = 'img_svg';
+    }
 
-    const result = {
+    const imgInfo = {
       elt: elt,
       extension: extension,
-      height: elt.height,
+      height: elt.naturalHeight,
       filename: filename,
       src: imgSrc,
       type: 'image/png',
-      width: elt.width
+      width: elt.naturalWidth
     };
 
     if (urls.indexOf(imgSrc) < 0) {
       urls.push(elt.src);
-
-      if (extensions.hasOwnProperty(extension)) {
-        result.type = extensions[extension];
-      }
-      else if (isDataUrlImageSrc(imgSrc)) {        
-        result.dataUrl = true;
-        result.type = extensions[imgSrc.split(';base64,')[0].split('/')[1]];
+      
+      if (isDataUrlImageSrc(imgSrc)) {        
         // data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAA
-        result.data = imgSrc.split(';base64,')[1];
+        imgInfo.dataUrl = true;
+        imgInfo.type = extensions[imgSrc.split(';base64,')[0].split('/')[1]];
+        imgInfo.extension = extension.indexOf('svg') >= 0 ? 'svg' : imgInfo.extension;        
+        imgInfo.data = imgSrc.split(';base64,')[1];
+      }
+      else if (extensions.hasOwnProperty(extension)) {
+        imgInfo.type = extensions[extension];
       }
       else { // extension not clear, generated image
 
       }      
 
-      return result;
-    }
-    
+      return imgInfo;
+    }    
   };
 };
 
-dom.fetchImages = () => {
-  // start process by looking for images
-  const domImageInfoExtrator = dom.getDomImageInfo();
-
-  const imgSpecs = dom.getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
-
-  console.log('images to be processed ' + imgSpecs.length)
-  const proc = processor.getProcessor(imgSpecs.length);
-  
-  imgSpecs.forEach(proc);
-};
-
+/**
+ * isDataUrlImageSrc() returns wether image is dataURI content.
+ *
+ * @return {Boolean} dataURI image or not
+ */
 const isDataUrlImageSrc = (imgSrc) => imgSrc.indexOf('data:image') >= 0;
