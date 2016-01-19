@@ -40,7 +40,7 @@ class Canvas extends Component {
   render() {    
     let height = 200;
     let extension = '';
-    let filename = '';
+    let filename = 'NA';
     let size = 'NA';
     let width = 200;
     let img = this.props.img;
@@ -55,9 +55,11 @@ class Canvas extends Component {
     return (
       <fieldset>
         <legend>Preview (click image)</legend>
-        <p>name: {filename}.{extension} - size: {size} - width: {width} - height: {height}</p>
-        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={width} height={height}  />
-        <a href='#' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</a>
+        <p>name: <b>{filename}</b> - size: <b>{size}</b> - width: <b>{width}</b> - height: <b>{height}</b></p>
+        <div className='download-button'>
+          <a href='#' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</a>
+        </div>
+        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={width} height={height}  />        
       </fieldset>
     );
   }

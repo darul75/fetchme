@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 const Link = (props) => {
   return (
     <li className='link' onClick={props.handleImagePreviewOnClick}>
-      <img height='16' src={props.src} title={props.label} width='16'/>
+      <img height='32' src={props.src} title={props.label} width='32'/>
     </li>
   );
 
@@ -41,7 +41,7 @@ class Links extends Component {
 
     return (
       <fieldset>
-        <legend>Images</legend>
+        <legend>Images x<b>{this.props.links.length}</b></legend>
         <ul className='links'>{linkRows}</ul>
       </fieldset>
     );

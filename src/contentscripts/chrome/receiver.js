@@ -83,7 +83,7 @@ const handleReceiveImageBlob = (request, sender, sendResponse) => {
   const data = request.data.src.split(',')[1];
   const mime = request.data.src.split(',')[0].replace(/data:|;base64/g, '');
   const filename = request.data.filename;
-  const extension = request.data.extension;
+  const extension = mime.replace('image/', '');
 
   const blob = blobber.dataURLtoBlob(mime, atob(data));
   fileSaver.saveAs(blob, filename+'.'+extension);

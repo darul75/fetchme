@@ -69,3 +69,7 @@ li.link {
   height: 50px;
   color: #ddd;
 }
+
+.download-button {
+  text-align: left;
+}

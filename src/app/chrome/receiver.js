@@ -1,20 +1,84 @@
 'use strict';
 
 import JSZip from 'jszip';
+import blobber from '../../common/blobber';
 import EVENTS from '../../common/events';
 
-var worker;
+let worker;
 
-if (window.Worker) {
-  worker = new Worker("dist/bundle-worker.js");
+if (chrome.runtime && window.Worker) {
+  //worker = new Worker("dist/bundle-worker.js");
 }
 
-// gen
-const generateBlobAsZip = (request, sender, sendResponse) => {
+/**
+ * handlerDownloadImagesAsZip() receive images as blob and build a zip file
+ *
+ * It will send it back to contentScript in a dataURI format
+ */
+const handlerDownloadImagesAsZip = (request, sender, sendResponse) => {
 
+  console.time('generating zip no worker');
   const blobs = request.blobs;
+  const zip = generateZipBlob(blobs);
 
-  console.time("generating zip worker");
+  zipBlobToDataUrl(zip, (err, payload) => {
+    console.timeEnd('generating zip no worker');
+    chrome.tabs.sendMessage(sender.tab.id, payload);
+  });
+
+};
+
+/**
+ * generateZipBlob() build a JSZip object
+ *
+ * @param {Array} blobs as array of object containing data in base64.
+ * @return {Object} new JSZip instance
+ */
+const generateZipBlob = (blobs) => {
+  const zip = new JSZip();
+
+  blobs.forEach((blob, idx) => {
+    const name = blob.filename+'_'+idx+'.'+blob.type.replace('image/', '').replace('+xml', '');
+    zip.file(name, blob.data, {'base64': true});
+  });
+
+  return zip.generate({type:'blob'});
+};
+
+/**
+ * zipBlobToDataUrl() build a JSZip object
+ *
+ * @param {Blob} zip
+ * @param {Function} callback when job is done
+ */
+const zipBlobToDataUrl  = (zip, cb) => {
+  blobber.blobToDataURL(zip, (mime, dataUrl) => {
+    cb(null, {
+      type: EVENTS.RECEIVE_ZIP_BLOB,
+      blobUrl: URL.createObjectURL(zip),
+      blobMime: mime,
+      blobDataUrl: dataUrl
+    });
+  });
+};
+
+const handlers = {
+  GENERATE_BLOB_AS_ZIP: handlerDownloadImagesAsZip  
+};
+
+module.exports = (request, sender, sendResponse) => {
+  const type = request.type;
+
+  if (handlers.hasOwnProperty(type)) {
+    handlers[type](request, sender, sendResponse);
+  }
+
+  return true;
+};
+
+// TODO try again worker, looks slow, JSON message serialiazing ?
+
+/*  console.time("generating zip worker");
   if (worker) {    
     //var myWorker = new Worker("dist/bundle-worker.js");  
     
@@ -24,66 +88,4 @@ const generateBlobAsZip = (request, sender, sendResponse) => {
       // e.data;
       console.timeEnd("generating zip worker");
     };
-  }
-  
-  console.time("generating zip no worker");
-  buildZip(blobs, (err, payload) => {
-    console.timeEnd("generating zip no worker");
-    chrome.tabs.sendMessage(sender.tab.id, payload, function(response) {
-        console.log(response.farewell);
-    });
-  });
-
-};
-
-const buildZip = (blobs, cb) => {
-  const zip = new JSZip();
-  for (var ii=0; ii<blobs.length;ii++) {
-    const blob = blobs[ii];
-    const name = blob.filename+'_'+ii+'.'+blob.type.replace('image/', '');
-    zip.file(name, blobs[ii].data, {'base64': true});
-  }
-
-  const blob = zip.generate({type:'blob'});
-
-  blobToDataURL(blob, function(mime, dataUrl) {
-
-    var payload = {
-      type: EVENTS.RECEIVE_ZIP_BLOB,
-      blobUrl: URL.createObjectURL(blob),
-      blobMime: mime,
-      blobDataUrl: dataUrl
-    };
-
-    cb(null, payload);
-
-  });
-
-};
-
-const handler = {
-  GENERATE_BLOB_AS_ZIP: generateBlobAsZip  
-};
-
-module.exports = (request, sender, sendResponse) => {
-  const type = request.type;
-
-  if (handler.hasOwnProperty(type)) {
-    handler[type](request, sender, sendResponse);
-  }
-
-  return true;
-};
-
-const blobToDataURL = (blob, cb) => {
-  const reader = new FileReader();
-
-  reader.onload = () => {
-    const dataUrl = reader.result;
-    const mime = dataUrl.split(',')[0];
-    const base64 = dataUrl.split(',')[1];
-    cb(mime, base64);
-  };
-
-  reader.readAsDataURL(blob);
-};
+  }*/
