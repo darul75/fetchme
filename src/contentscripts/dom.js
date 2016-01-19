@@ -66,6 +66,28 @@ dom.getDomImageInfo = () => {
   };
 };
 
+dom.getDomImageFromStyles = () => {
+  document.styleSheets.forEach((stylesheet) => {
+    const cssRules = stylesheet.cssRules;
+    cssRules.forEach((cssRule) => {
+      var style = cssRule.style;
+      if (style && style['background-image']) {
+        var url = extractURLFromStyle(style['background-image']);
+        if (isImageURL(url)) {
+          //imageDownloader.images.push(url);
+        }
+      }
+
+    });
+  });                    
+};
+
+const imageRegex = /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*\.(?:jpe?g|gif|png))(?:\?([^#]*))?(?:#(.*))?/;
+
+const isImageURL = (url) => url.substring(0, 10) === 'data:image' || imageRegex.test(url);
+
+const extractURLFromStyle = (url) => url.replace(/^url\(["']?/, '').replace(/["']?\)$/, '');
+
 /**
  * isDataUrlImageSrc() returns wether image is dataURI content.
  *

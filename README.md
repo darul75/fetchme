@@ -41,3 +41,5 @@ Start prog2, and keep it in foreground, so you can close it with ctrl-c.
 When you close prog2, you'll return to prog1's foreground, so you can also close it with ctrl-c.
 
 https://github.com/mdn/simple-web-worker
+
+https://github.com/vdsabev/image-downloader/blob/master/scripts/send_images.js
