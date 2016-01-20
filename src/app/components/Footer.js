@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-class Actions extends Component {
+class Footer extends Component {
   constructor(props) {
     super(props);
 
@@ -24,6 +24,6 @@ class Actions extends Component {
   }
 }
 
-Actions.prototype.displayName = 'Actions';
+Footer.prototype.displayName = 'Footer';
 
-module.exports = Actions;
+module.exports = Footer;

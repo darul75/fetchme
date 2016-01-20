@@ -5,7 +5,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 // COMPONENTS
-import Actions from './components/Actions';
 import Canvas from './components/Canvas';
 import Links from './components/Links';
 import Header from './components/Header';
@@ -20,6 +19,8 @@ const inExtension = chrome.runtime.onMessage;
 // links to be displayed
 let links = [], img;
 
+const defaultOptions = {figure: true, tag: true, link: true, style: true};
+
 // mock
 if (!inExtension) {
   links.push({
@@ -33,16 +34,21 @@ if (!inExtension) {
 // ACTIONS HANDLER
 
 // get all images from content script
-const handleFetchImagesOnClick = () => fire(inExtension, render, EVENTS.GET_IMGS);
+const handleFetchImagesOnClick = (options) => fire(inExtension, render, EVENTS.GET_IMGS, options);
 // get specific image
 const handleFetchImageOnClick = (payload) => fire(inExtension, render, EVENTS.RECEIVE_IMAGE_BLOB, payload);
 // get all images from content script and zip it
-const handleDownloadImagesZipOnClick = () => fire(inExtension, render, EVENTS.ZIP_IMGS);
+const handleDownloadImagesZipOnClick = (options) => fire(inExtension, render, EVENTS.ZIP_IMGS, options);
 // get selected image details
 const handleImagePreviewOnClick = (payload) => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
 
+const initCall = () => {
+  handleFetchImagesOnClick(defaultOptions);
+};
+
 const render = (err, data, init) => {
-  const cb = init ? handleFetchImagesOnClick : () => {};
+
+  const cb = init ? initCall : () => {};
 
 	if (data) {
 		if (data.links) links = data.links;
@@ -50,16 +56,13 @@ const render = (err, data, init) => {
 	}
 
   ReactDOM.render(<div>
-    <Header />
-    <Actions
-      handleFetchImagesOnClick={handleFetchImagesOnClick}
-      handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
-    />
+    <Header handleFetchImagesOnClick={handleFetchImagesOnClick}
+      handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick} />    
     <Links
       links={links}
       handleImagePreviewOnClick={handleImagePreviewOnClick}
       />
-    <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />
+    <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />    
     <p>Watch...,then download images</p>
     </div>,
     document.getElementById('main'),

@@ -20,11 +20,15 @@ p {
   color: #ddd;
 }
 
-a {  
+a, span {
   font-size: 13px;
   color: #ddd;
   text-decoration: none;
   text-transform: uppercase;
+}
+
+span {
+  font-size: 10px;
 }
 
 #main {
@@ -32,8 +36,9 @@ a {
   background: #222;
 }
 
-.nav-main {
-  
+.options {
+  margin: 0;
+  padding: 0;
 }
 
 .nav-main .nav-site-internal {

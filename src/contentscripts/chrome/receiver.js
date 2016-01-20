@@ -10,17 +10,32 @@ import dom from './../dom';
 import processor from './../processor';
 
 /**
+* fetchImages() return all img tags, url tags or styles where images appear.
+*
+* @return all objects or url of images
+*/
+const fetchImages = (options) => {
+    // fetch all dom image from tags or styles
+  const imgTags = options.tag ? dom.getDomTags('img') : [];
+  const figureTags = options.figure ? dom.getImageUrlFromFigures() : [];
+  const linkTags = options.link ? dom.getDomTags('a') : [];
+  const imgUrls = options.style ? dom.getImageUrlFromStyles() : [];
+
+  // concat them
+  return [...imgTags, ...figureTags, ...linkTags, ...imgUrls];
+};
+
+/**
  * handleFetchImagesByDom() returns a new function to be used in forEach, map..
  *
  * @return {Function} anonymous fn
  */
-const handleFetchImagesByDom = (request, sender, sendResponse) => {
+const handleFetchImagesByDom = (request, sender, sendResponse) => {  
   // will compute image relevant attributes
   const domImageInfoExtrator = dom.getDomImageInfo();
-  // do it for all images
-  const imgSpecs = dom.getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
-
-  // directly send it back by callback
+  // look and inspect
+  const imgSpecs = fetchImages(request.data).map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+  // directly send it back by chrome callback message
   sendResponse(imgSpecs);
 };
 
@@ -29,9 +44,9 @@ const handleFetchImagesByDom = (request, sender, sendResponse) => {
  */
 const handleFetchImagesByRequest = (request, sender, sendResponse) => {
   // will compute image relevant attributes
-  const domImageInfoExtrator = dom.getDomImageInfo();
-  // do it for all images
-  const imgSpecs = dom.getDomImages().map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+  const domImageInfoExtrator = dom.getDomImageInfo();  
+  // look and inspect
+  const imgSpecs = fetchImages(request.data).map(domImageInfoExtrator).filter(function(elt) {return !!elt});
   // by http request, will trigger a message when finished
   const proc = processor.processImages(imgSpecs.length);
   imgSpecs.forEach(proc);
