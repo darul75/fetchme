@@ -22,7 +22,7 @@ proc.convertImageContentToDataUrl = (payload, cb) => {
 
     // 1) NOT ONLY SAME DOMAIN
     fetcher(payload.src, (err, responsePayload) => {
-      if (err) cb(err);
+      if (err) return cb(err);
 
       const img = responsePayload.img;
 

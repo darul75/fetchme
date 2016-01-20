@@ -7,8 +7,7 @@ import ReactDOM from 'react-dom';
 class Header extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      figure: true,
+    this.state = {      
       tag: true,
       link: true,
       style: true
@@ -35,8 +34,7 @@ class Header extends Component {
         <fieldset>
           <legend>Options</legend>
           <ul className='options'>
-            <li><input type='checkbox' checked={this.state.tag} onChange={this.handleOnChangeImageTag.bind(this, 'tag')} title='image tag <img>' />Images</li>
-            <li><input type='checkbox' checked={this.state.figure} onChange={this.handleOnChangeImageTag.bind(this, 'figure')} title='figure tag <figure>' />Figures</li>
+            <li><input type='checkbox' checked={this.state.tag} onChange={this.handleOnChangeImageTag.bind(this, 'tag')} title='image tag <img>' />Images</li>            
             <li><input type='checkbox' checked={this.state.link} onChange={this.handleOnChangeImageTag.bind(this, 'link')} title='link tag <a>' />Links</li>
             <li><input type='checkbox' checked={this.state.style} onChange={this.handleOnChangeImageTag.bind(this, 'style')} title='css styles' />Styles</li>
           </ul>

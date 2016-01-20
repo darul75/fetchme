@@ -8,7 +8,7 @@ import prettyBytes from 'pretty-bytes';
  */
 const fetchImage = (imageUrl, cb) => {
   const req = new XMLHttpRequest();
-  req.onload = () => {
+  req.onload = (e) => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);      
@@ -18,6 +18,9 @@ const fetchImage = (imageUrl, cb) => {
       });
     };
 
+    if (req.status !== 200) {
+      return cb(new Error('issue while fetching resource'));
+    }
     img.src = URL.createObjectURL(req.response);
   };
   req.onerror = (e) => {

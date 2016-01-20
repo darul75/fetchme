@@ -19,7 +19,7 @@ const inExtension = chrome.runtime.onMessage;
 // links to be displayed
 let links = [], img;
 
-const defaultOptions = {figure: true, tag: true, link: true, style: true};
+const defaultOptions = {tag: true, link: true, style: true};
 
 // mock
 if (!inExtension) {

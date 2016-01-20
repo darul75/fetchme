@@ -19,7 +19,7 @@ dom.getDomTags = (type) => [].slice.call(document.getElementsByTagName(type));
 /**
  * getDomImageFromStyles() returns all images URL from styles
  *
- * @return {Array} urls as string
+ * @return {Array} urls
  */
 dom.getImageUrlFromStyles = () => {
   let urls = [];
@@ -41,36 +41,34 @@ dom.getImageUrlFromStyles = () => {
 
         if (style && style['background-image']) {
           var url = extractURLFromStyle(style['background-image']);
-          if (isImageURL(url)) {
+          if (isImageURL(url) && urls.indexOf(url) < 0) {
             urls.push(url);
           }
         }  
       /*}*/      
     });    
   });
+
+  urls = [...urls, ...dom.getImageUrlFromBackgroundImageProperty()];
+
   return urls;
 };
 
 /**
- * getDomImageFromFigureStyles() returns all DOM img tags
+ * getImageUrlFromBackgroundImageProperty() looks into DOM element CSS prop.
  *
- * @return {Array} DOM image elements
+ * @return {Array} urls
  */
-dom.getImageUrlFromFigures = () => {
-  let urls = [];
-  [].slice.call(dom.getDomTags('figure')).forEach((figure) => {
-    
-    const url = window.getComputedStyle(figure).getPropertyValue('background-image');
-    if (url) {
-      urls.push(url.replace(/url\(|\)/g, ''));
-    }
+dom.getImageUrlFromBackgroundImageProperty = () => {
+  const urls = [];
+  const elts = [...dom.getDomTags('figure'), ...dom.getDomTags('div')];
 
-    /*if (style && style['background-image']) {
-      var url = extractURLFromStyle(style['background-image']);
-      if (isImageURL(url)) {
-        urls.push(url);
-      }
-    }  */
+  [].slice.call(elts).forEach((elt) => {
+    
+    const url = window.getComputedStyle(elt).getPropertyValue('background-image');
+    if (isImageURL(url) && urls.indexOf(url) < 0) {
+      urls.push(url.replace(/url\(|\)/g, ''));
+    }    
     
   });
   return urls;

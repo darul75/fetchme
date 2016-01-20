@@ -16,13 +16,12 @@ import processor from './../processor';
 */
 const fetchImages = (options) => {
     // fetch all dom image from tags or styles
-  const imgTags = options.tag ? dom.getDomTags('img') : [];
-  const figureTags = options.figure ? dom.getImageUrlFromFigures() : [];
+  const imgTags = options.tag ? dom.getDomTags('img') : [];  
   const linkTags = options.link ? dom.getDomTags('a') : [];
   const imgUrls = options.style ? dom.getImageUrlFromStyles() : [];
 
   // concat them
-  return [...imgTags, ...figureTags, ...linkTags, ...imgUrls];
+  return [...imgTags, ...linkTags, ...imgUrls];
 };
 
 /**
@@ -59,7 +58,7 @@ const handleImageDataURI = (request, sender, sendResponse) => {
   const imagePayload = request.data;
   // convert to dataUrl
   const cb = function(err, payload, dataUrl) {
-    if (err) console.error(err);
+    if (err) return; //console.error(err);
 
     if (!err) {
       const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');

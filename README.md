@@ -49,3 +49,5 @@ figure tags
 http://www.apple.com/itunes/
 
 https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
+
+https://github.com/vdsabev/image-downloader
