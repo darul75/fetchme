@@ -1,0 +1,105 @@
+body {
+  margin: 0;
+  height: 100%;
+  font-family: "Segoe UI", "Lucida Grande", Tahoma, sans-serif;
+  font-size: 100%;  
+}
+
+canvas {
+  margin: 20px 0;
+}
+
+li {
+  display: inline;
+}
+
+legend {
+  font-size: 0.8rem;
+  color: #444;
+}
+
+p {
+  margin-left: 5px;  
+  font-size: 10px;
+  color: #444;
+}
+
+a, span {
+  font-size: 13px;
+  color: #444;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+span {
+  font-size: 10px;
+}
+
+span.button {
+  padding: 5px;
+  background-color: #F7F3F3;
+  border: 1px solid #D3D5D6;
+  font-size: 10px;  
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#main {
+  width: 350px;  
+}
+
+.black-bg {
+  background-color: #222;
+}
+
+.black-bg legend, .black-bg span, .black-bg b {
+  color: #eee;
+}
+
+.black-bg span.button {
+  color: #222;
+}
+
+.options {
+  margin: 0;
+  padding: 0;
+}
+
+.nav-main .nav-site-internal {
+  margin: 0 18px;
+  padding: 0;
+}
+
+.nav-main a {
+  color: #e9e9e9;
+  text-decoration: none;
+}
+
+ul.links {
+  margin: 0;
+  padding: 0;  
+  cursor: pointer;
+}
+
+li.link {
+  margin: 0 0 0 5px;
+}
+.nav-main .nav-site a.active {
+  color: #fafafa;
+  border-bottom: 3px solid #cc7a6f;
+  background: #333;
+}
+
+.nav-main .nav-site a {
+  box-sizing: content-box;
+  padding: 0 10px;
+  line-height: 50px;
+  display: inline-block;
+  height: 50px;
+  font-weight: bold;
+  color: #222;
+}
+
+.download-button {
+  text-align: left;
+}
