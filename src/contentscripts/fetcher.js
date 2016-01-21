@@ -17,6 +17,9 @@ const fetchImage = (imageUrl, cb) => {
         size: prettyBytes(req.response.size)
       });
     };
+    img.onerror = (e) => {
+      return cb(new Error('error while loading image'));
+    }
 
     if (req.status !== 200) {
       return cb(new Error('issue while fetching resource'));
@@ -24,11 +27,20 @@ const fetchImage = (imageUrl, cb) => {
     img.src = URL.createObjectURL(req.response);
   };
   req.onerror = (e) => {
-    cb(e);
+    return cb(e);
   };
-  req.open("get", imageUrl, true);
-  req.responseType = 'blob';
-  req.send();
+  req.ontimeout = (e) => {
+    return cb(e);
+  };
+
+  try {
+    req.open("get", imageUrl, true);
+    req.responseType = 'blob';
+    req.send();
+  }
+  catch (e) {
+    return cb(e);
+  }
 }
 
 module.exports = fetchImage;

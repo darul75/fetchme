@@ -1,2 +1,0 @@
-SyntaxError: /Users/julienvalery/Documents/Dev/Git/fetchme/src/app/app.js: Unexpected token (8:4) while parsing file: /Users/julienvalery/Documents/Dev/Git/fetchme/src/app/app.js
-SyntaxError: /Users/julienvalery/Documents/Dev/Git/fetchme/src/app/app.js: Unexpected token (8:4) while parsing file: /Users/julienvalery/Documents/Dev/Git/fetchme/src/app/app.js

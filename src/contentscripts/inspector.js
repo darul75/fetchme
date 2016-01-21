@@ -10,10 +10,6 @@ import receiver from './chrome/receiver';
 
 const runtime = chrome.runtime;
 
-const sendMsg = (blobs) => {
-  runtime.sendMessage({type:'ZIP_IMAGES', blobs: blobs });
-};
-
 // message listener
 
 runtime.onMessage.addListener(receiver);

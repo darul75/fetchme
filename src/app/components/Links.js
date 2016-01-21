@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 const Link = (props) => {
   return (
     <li className='link' onClick={props.handleImagePreviewOnClick}>
-      <img height='16' src={props.src} title={props.label} width='16' title='click to download it'/>
+      <img height='32' src={props.src} title={props.label} width='32' title='click to download it'/>
     </li>
   );
 

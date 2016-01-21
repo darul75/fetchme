@@ -60,36 +60,48 @@ proc.convertImageContentToDataUrl = (payload, cb) => {
  */
 proc.processImages = (limit) => {
   const blobs = [];
+  const todo = limit;
 
   /**
   * anonymous() do the job for current image payload and callback if needed
   *
   * @param {imagePayload} current image
   */
-  return (imagePayload) => {
+  return (imagePayload) => {    
 
     // convert to dataUrl
     const cb = (err, payload, dataUrl) => {
-      if (err) console.error(err);
+      if (err) {
+        limit--;
 
-      if (!err) {
-        const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+        const prog = Math.round(((todo-limit) * 100) / todo);        
+        sender.sendProgression(prog);
 
-        const newBlob = {
-          data: data,
-          extension: payload.extension,
-          filename: payload.filename,
-          type: payload.type
-        };
+        if (limit <= 0) {
+          sender.sendBlobs(blobs);
+        }
 
-        blobs.push(newBlob);
-
+        return;
       }
 
+      
+      const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+
+      const newBlob = {
+        data: data,
+        extension: payload.extension,
+        filename: payload.filename,
+        type: payload.type
+      };
+
+      blobs.push(newBlob);
       limit--;
 
+      const prog = Math.round(((todo-limit) * 100) / todo);      
+      sender.sendProgression(prog);
+
       if (limit <= 0) {
-        sender(blobs);
+        sender.sendBlobs(blobs);
       }
 
     };

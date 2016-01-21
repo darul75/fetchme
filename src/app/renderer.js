@@ -3,6 +3,7 @@
 // LIBRARIES
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Progress from 'react-progress';
 
 // COMPONENTS
 import Canvas from './components/Canvas';
@@ -13,13 +14,19 @@ import Header from './components/Header';
 import fire from './chrome/sender';
 import EVENTS from '../common/events';
 
+// EXPORT MODULE
+const renderer = {};
+module.exports = renderer;
+
 // for dev purpose
 const inExtension = chrome.runtime.onMessage;
 
 // links to be displayed
 let links = [], img;
+// theme
+let whiteBackground = true;
 
-const defaultOptions = {tag: true, link: true, style: true};
+const defaultOptions = {tag: true, link: true, style: true, bg: true};
 
 // mock
 if (!inExtension) {
@@ -34,19 +41,25 @@ if (!inExtension) {
 // ACTIONS HANDLER
 
 // get all images from content script
-const handleFetchImagesOnClick = (options) => fire(inExtension, render, EVENTS.GET_IMGS, options);
+const handleFetchImagesOnClick = (options) => fire(inExtension, renderApp, EVENTS.GET_IMGS, options);
 // get specific image
-const handleFetchImageOnClick = (payload) => fire(inExtension, render, EVENTS.RECEIVE_IMAGE_BLOB, payload);
+const handleFetchImageOnClick = (payload) => fire(inExtension, renderApp, EVENTS.RECEIVE_IMAGE_BLOB, payload);
 // get all images from content script and zip it
-const handleDownloadImagesZipOnClick = (options) => fire(inExtension, render, EVENTS.ZIP_IMGS, options);
+const handleDownloadImagesZipOnClick = (options) => fire(inExtension, renderApp, EVENTS.ZIP_IMGS, options);
 // get selected image details
-const handleImagePreviewOnClick = (payload) => fire(inExtension, render, EVENTS.GET_IMG_DATA_URI, payload);
+const handleImagePreviewOnClick = (payload) => fire(inExtension, renderApp, EVENTS.GET_IMG_DATA_URI, payload);
+// change app background color
+const handleReverseBackgroundOnClick = (options) => {
+  whiteBackground = options.whiteBackground;
+  renderApp();
+};
+
 
 const initCall = () => {
   handleFetchImagesOnClick(defaultOptions);
 };
 
-const render = (err, data, init) => {
+const renderApp = (err, data, init) => {
 
   const cb = init ? initCall : () => {};
 
@@ -55,20 +68,31 @@ const render = (err, data, init) => {
 		if (data.img) img = data.img;
 	}
 
+  const className = whiteBackground ? '' : 'black-bg';
+
   ReactDOM.render(<div>
-    <Header handleFetchImagesOnClick={handleFetchImagesOnClick}
-      handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick} />    
-    <Links
-      links={links}
-      handleImagePreviewOnClick={handleImagePreviewOnClick}
-      />
-    <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />    
+    <Header 
+      handleFetchImagesOnClick={handleFetchImagesOnClick}
+      handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
+      handleReverseBackgroundOnClick={handleReverseBackgroundOnClick} />
+    <div className={className}>
+      <Links
+        links={links}
+        handleImagePreviewOnClick={handleImagePreviewOnClick}
+        />
+      <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />    
+    </div>
     <p>Watch...,then download images</p>
     </div>,
     document.getElementById('main'),
     cb
-  );
+  );  
+};
+
+const renderProgressBar = (value) => {
+  ReactDOM.render(<Progress percent={value} color='red'/>, document.getElementById('progress-bar'));
 };
 
 // rendering
-module.exports = render;
+renderer.renderApp = renderApp;
+renderer.renderProgressBar = renderProgressBar;

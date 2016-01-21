@@ -6,12 +6,11 @@ import ReactDOM from 'react-dom';
 
 // https://gist.github.com/sebmarkbage/6f7da234174ab9f64cce
 
+const WIDTH_LIMIT = 350;
+
 class Canvas extends Component {
   constructor(props) {
-    super(props);
-
-    /*// https://facebook.github.io/react/blog/2015/01/27/react-v0.13.0-beta-1.html#autobinding
-    this.handleOnClickEdit = this.handleOnClickEdit.bind(this);*/
+    super(props);    
   }
 
   componentDidMount() {
@@ -29,37 +28,47 @@ class Canvas extends Component {
     if (!this.props.img) return;
 
     ctx.save();
+    const {width, height} = this.props.img;    
+
     let img = new Image;
-    img.onload = function(){
-      ctx.drawImage(img,0,0); // Or at whatever offset you like
+    img.onload = () => {
+      ctx.drawImage(img,0,0, width, height);
     };
     img.src = this.props.img.src;
     ctx.restore();
   }
 
   render() {    
-    let height = 200;
+    let height, h = 200;
     let extension = '';
     let filename = 'NA';
     let size = 'NA';
-    let width = 200;
+    let width, w = 200;    
     let img = this.props.img;
 
     if (img) {
       extension = img.extension;
       filename = img.filename;
-      width = img.width;
-      height = img.height;
+      width = w = img.width;
+      height = h = img.height;
+      if (width > WIDTH_LIMIT) {
+        const ratio = WIDTH_LIMIT / width;
+        img.width = Math.round(width * ratio);
+        img.height = Math.round(height * ratio);
+      }
       size = img.size ? img.size: size;
+    }
+    else {
+      img = {width:0, height:0};
     }
     return (
       <fieldset>
         <legend>Preview (click image)</legend>
-        <p>name: <b>{filename}</b> - size: <b>{size}</b> - width: <b>{width}</b> - height: <b>{height}</b></p>
+        <p>name: <b>{filename}</b> - size: <b>{size}</b> - width: <b>{w}</b> - height: <b>{h}</b></p>
         <div className='download-button'>
-          <a href='#' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</a>
+          <span className='button' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</span>
         </div>
-        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={width} height={height}  />        
+        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={img.width} height={img.height}  />
       </fieldset>
     );
   }

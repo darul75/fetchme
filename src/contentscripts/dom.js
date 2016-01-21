@@ -130,7 +130,7 @@ dom.getDomImageInfo = () => {
     };
 
     if (urls.indexOf(src) < 0) {
-      urls.push(elt.src);
+      urls.push(src);
       
       if (isDataUrlImageSrc(src)) {        
         // data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAA
@@ -147,7 +147,10 @@ dom.getDomImageInfo = () => {
       }      
 
       return imgInfo;
-    }    
+    }
+    else {
+      return null;
+    }
   };
 };
 

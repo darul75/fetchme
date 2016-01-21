@@ -18,10 +18,27 @@ const fetchImages = (options) => {
     // fetch all dom image from tags or styles
   const imgTags = options.tag ? dom.getDomTags('img') : [];  
   const linkTags = options.link ? dom.getDomTags('a') : [];
-  const imgUrls = options.style ? dom.getImageUrlFromStyles() : [];
+  let imgUrls = options.style ? dom.getImageUrlFromStyles() : [];
+  const urlImgTester = /^http|^data:image/;
+  const urlCssImgTester = /(?:url)\(((.*?))\)/gi;
+  let extractedUrls = [];
+
+  imgUrls = imgUrls.filter((url) => {
+    if (urlImgTester.test(url))
+      return true;
+    else if (~url.indexOf('url(')) {
+      const urls = urlCssImgTester.exec(url);
+      if (urls) {
+        extractedUrls = [...extractedUrls, ...urls.slice(1)];
+        return false;
+      }
+    }
+
+    return false;
+  });
 
   // concat them
-  return [...imgTags, ...linkTags, ...imgUrls];
+  return [...imgTags, ...linkTags, ...imgUrls, ...extractedUrls];
 };
 
 /**
@@ -90,7 +107,7 @@ const handleImageDataURI = (request, sender, sendResponse) => {
 
 const handleReceiveZipBlob = (request, sender, sendResponse) => {
   const blob = blobber.dataURLtoBlob(request.blobMime, atob(request.blobDataUrl));
-  fileSaver.saveAs(blob, 'img-client.zip');
+  fileSaver.saveAs(blob, 'dog_it_images.zip');
 };
 
 const handleReceiveImageBlob = (request, sender, sendResponse) => {

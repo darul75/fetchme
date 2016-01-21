@@ -1,7 +1,7 @@
 'use strict';
 
 import receiver from './chrome/receiver';
-import render from './renderer';
+import renderer from './renderer';
 
 // for dev purpose
 const inExtension = chrome.runtime.onMessage;
@@ -14,4 +14,4 @@ if (inExtension)
   loadChromeEventHandlers();
 
 // popup opens
-document.addEventListener('DOMContentLoaded', () => render(null, null, true));
+document.addEventListener('DOMContentLoaded', () => renderer.renderApp(null, null, true));

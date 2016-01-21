@@ -1,6 +1,7 @@
 'use strict';
 
 import JSZip from 'jszip';
+import renderer from '../renderer';
 import blobber from '../../common/blobber';
 import EVENTS from '../../common/events';
 
@@ -63,7 +64,10 @@ const zipBlobToDataUrl  = (zip, cb) => {
 };
 
 const handlers = {
-  GENERATE_BLOB_AS_ZIP: handlerDownloadImagesAsZip  
+  GENERATE_BLOB_AS_ZIP: handlerDownloadImagesAsZip,
+  GENERATE_BLOB_AS_ZIP_PROGRESSION: (request) => {
+    renderer.renderProgressBar(request.data);
+  }
 };
 
 module.exports = (request, sender, sendResponse) => {
