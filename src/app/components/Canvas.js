@@ -20,7 +20,7 @@ class Canvas extends Component {
 
   componentDidUpdate() {
     let ctx = this.refs.canvas.getContext('2d');
-    //ctx.clearRect(0, 0, 200, 200);
+    ctx.clearRect(0, 0, 350, 1000);
     this.paint(ctx);
   }
 

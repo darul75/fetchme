@@ -103,3 +103,8 @@ li.link {
 .download-button {
   text-align: left;
 }
+
+.form-select {
+  width: 150px;
+  display: inline-block;
+}

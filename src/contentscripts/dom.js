@@ -79,8 +79,10 @@ dom.getImageUrlFromBackgroundImageProperty = () => {
  *
  * @return {Function} anonymous fn
  */
-dom.getDomImageInfo = () => {
+dom.getDomImageInfo = (options) => {
   const urls = [];
+  const otype = options.type;
+  const osize = options.size;
 
   /**
    * @param {Object} current iteration element
@@ -94,19 +96,30 @@ dom.getDomImageInfo = () => {
     let src = '';
     let height = 32;
     let width = 32;
+    let href = false;
 
     // 1) URL
     if (type === 'string') {
       src = elt;
+      href = true;
     } // 2) IMG TAG
     else if (type === 'object') {
       if (elt.tagName.toLowerCase() === 'img') {
         src = elt.src;
         height = elt.naturalHeight;
         width = elt.naturalWidth;
+        // 3) filter by option on size
+        if (!checkSize(osize, width, height)) {
+          return null;
+        }
+        // 4) filter by option on type
+        if (!checkType(otype, width, height)) {
+          return null;
+        }
       }
       else {
         src = elt.href;
+        href = true;
         if (!isImageURL(src)) {
           return null;
         }
@@ -126,7 +139,8 @@ dom.getDomImageInfo = () => {
       filename: filename,
       src: src,
       type: 'image/png',
-      width: width
+      width: width,
+      href: href
     };
 
     if (urls.indexOf(src) < 0) {
@@ -154,6 +168,51 @@ dom.getDomImageInfo = () => {
   };
 };
 
+const checkSize = (option, w, h) => {
+  let flag = true;
+
+  if (typeof(option) === 'string') return flag;
+
+  switch (option.value) {
+    case 'icon':
+      flag = w < 128 && h < 128;
+    break;
+    case 'medium':
+      flag = (w > 128 && w < 1000) || (h > 128 && h < 1000);
+    break;
+    case 'big':
+      flag = w > 1000 || h > 1000;
+    break;
+    default:      
+    break;
+  }
+  return flag;
+};
+
+const checkType = (option, w, h) => {
+  let flag = true;
+
+  if (typeof(option) === 'string') return flag;
+
+  switch (option.value) {
+    case 'picture':
+      flag = w < h;
+    break;
+    case 'square':
+      flag = w === h;
+    break;
+    case 'landscape':
+      flag = w > h;
+    break;
+    /*case 'panoramic':
+      flag = w > 1000 || h > 1000;
+    break;*/
+    default:      
+    break;
+  }
+  return flag;
+};
+
 const extractImageFromCSSRules = (cssRules) => {
   cssRules = [].slice.call(cssRules);
   const urls = [];
@@ -170,7 +229,10 @@ const extractImageFromCSSRules = (cssRules) => {
   return urls;
 };
 
-const imageRegex = /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*\.(?:jpe?g|gif|png))(?:\?([^#]*))?(?:#(.*))?/;
+// omit params ?
+// const imageRegex = /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*\.(?:jpe?g|gif|png))(?:\?([^#]*))?(?:#(.*))?/;
+//http://images.google.fr/imgres?imgurl=http://www.computerschool.org/images/google-by-the-numbers.jpg&imgrefurl=http://www.computerschool.org/computers/google/&h=4341&w=900&tbnid=FwmRNqSId0hU_M:&docid=FxA7xP9a1u4EYM&hl=fr&ei=DA6iVpP1E8jvUuS3lcAE&tbm=isch
+const imageRegex = /(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*\.(?:jpe?g|gif|png)$)/;
 
 const isImageURL = (url) => url.substring(0, 10) === 'data:image' || imageRegex.test(url);
 

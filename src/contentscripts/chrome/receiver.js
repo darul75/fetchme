@@ -16,9 +16,9 @@ import processor from './../processor';
 */
 const fetchImages = (options) => {
     // fetch all dom image from tags or styles
-  const imgTags = options.tag ? dom.getDomTags('img') : [];  
-  const linkTags = options.link ? dom.getDomTags('a') : [];
-  let imgUrls = options.style ? dom.getImageUrlFromStyles() : [];
+  const imgTags = options.search.some((elt) => elt.value === 'images') ? dom.getDomTags('img') : [];  
+  const linkTags = options.search.some((elt) => elt.value === 'links') ? dom.getDomTags('a') : [];
+  let imgUrls = options.search.some((elt) => elt.value === 'styles') ? dom.getImageUrlFromStyles() : [];
   const urlImgTester = /^http|^data:image/;
   const urlCssImgTester = /(?:url)\(((.*?))\)/gi;
   let extractedUrls = [];
@@ -46,23 +46,35 @@ const fetchImages = (options) => {
  *
  * @return {Function} anonymous fn
  */
-const handleFetchImagesByDom = (request, sender, sendResponse) => {  
+const handleFetchImagesByDom = (request, sender, sendResponse) => {
+  // get options first
+  const options = request.data;  
+  // look for images
+  const imgs = fetchImages(options);
   // will compute image relevant attributes
-  const domImageInfoExtrator = dom.getDomImageInfo();
-  // look and inspect
-  const imgSpecs = fetchImages(request.data).map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+  const domImageInfoExtrator = dom.getDomImageInfo(options);
+  // inspect
+  const imgSpecs = imgs.map(domImageInfoExtrator).filter((elt) => {return !!elt});
+  // compute with and height for image with data URI
+  const imgsWithDataURI = imgSpecs.filter((elt) => {return elt.dataUrl || elt.href});
+
   // directly send it back by chrome callback message
-  sendResponse(imgSpecs);
+  computeMissingWitdhAndHeight(options, imgsWithDataURI, imgsWithDataURI.length, () => {
+    const results = imgSpecs.filter((elt) => {return !elt.invalidate});
+    sendResponse(results);
+  });
 };
 
 /**
  * handleFetchImagesByRequest() inspects DOM and request all images to be used for zip generation.
  */
 const handleFetchImagesByRequest = (request, sender, sendResponse) => {
+  // get options first
+  const options = request.data;
   // will compute image relevant attributes
-  const domImageInfoExtrator = dom.getDomImageInfo();  
+  const domImageInfoExtrator = dom.getDomImageInfo(options);
   // look and inspect
-  const imgSpecs = fetchImages(request.data).map(domImageInfoExtrator).filter(function(elt) {return !!elt});
+  const imgSpecs = fetchImages(options).map(domImageInfoExtrator).filter(function(elt) {return !!elt});
   // by http request, will trigger a message when finished
   const proc = processor.processImages(imgSpecs.length);
   imgSpecs.forEach(proc);
@@ -118,6 +130,87 @@ const handleReceiveImageBlob = (request, sender, sendResponse) => {
 
   const blob = blobber.dataURLtoBlob(mime, atob(data));
   fileSaver.saveAs(blob, filename+'.'+extension);
+};
+
+const computeMissingWitdhAndHeight = (options, imgs, count, cb) => {
+  if (count <=0) {
+    return cb();
+  }
+  imgs.forEach((imgInfo) => {
+    try {
+      const img = new Image();
+      img.onload = () => {
+       imgInfo.width = img.width;
+       imgInfo.height = img.height;
+       if (!checkSize(options.size, img.width, img.height) 
+        || !checkType(options.type, img.width, img.height)) {
+        imgInfo.invalidate = true;
+       }
+       count--; 
+       if (count <=0) {
+        return cb();
+       }
+      };
+      img.onerror = (e) => {
+        count--;
+        if (count <=0) {
+          return cb();
+        }
+      }
+      img.src = imgInfo.src;
+    }
+    catch (e) {
+      count--; 
+      if (count <=0) {
+        return cb();
+      }
+    }    
+  });  
+}
+
+const checkSize = (option, w, h) => {
+  let flag = true;
+
+  if (typeof(option) === 'string') return flag;
+
+  switch (option.value) {
+    case 'icon':
+      flag = w < 128 && h < 128;
+    break;
+    case 'medium':
+      flag = (w > 128 && w < 1000) || (h > 128 && h < 1000);
+    break;
+    case 'big':
+      flag = w > 1000 || h > 1000;
+    break;
+    default:      
+    break;
+  }
+  return flag;
+};
+
+const checkType = (option, w, h) => {
+  let flag = true;
+
+  if (typeof(option) === 'string') return flag;
+
+  switch (option.value) {
+    case 'picture':
+      flag = w < h;
+    break;
+    case 'square':
+      flag = w === h;
+    break;
+    case 'landscape':
+      flag = w > h;
+    break;
+    /*case 'panoramic':
+      flag = w > 1000 || h > 1000;
+    break;*/
+    default:      
+    break;
+  }
+  return flag;
 };
 
 const handlers = {

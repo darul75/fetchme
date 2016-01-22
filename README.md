@@ -57,3 +57,5 @@ https://github.com/vdsabev/image-downloader
 http://www.flaticon.com/free-icon/zynga-logotype_33609
 
 <div>Icons made by <a href="http://www.flaticon.com/authors/simpleicon" title="SimpleIcon">SimpleIcon</a> from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>             is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
+
+https://www.google.fr/search?as_st=y&tbm=isch&hl=fr&as_q=google+image&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs=iar:s#q=google+image&as_st=y&hl=fr&tbs=iar:xw,isz:i&tbm=isch

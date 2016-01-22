@@ -26,7 +26,15 @@ let links = [], img;
 // theme
 let whiteBackground = true;
 
-const defaultOptions = {tag: true, link: true, style: true, bg: true};
+const defaultOptions = {
+  search: [
+    {value: 'links', label: 'Links'},
+    {value: 'images', label: 'Images'}    
+  ], 
+  bg: true, 
+  type: 'all', 
+  size: 'all'
+};
 
 // mock
 if (!inExtension) {
@@ -41,7 +49,7 @@ if (!inExtension) {
 // ACTIONS HANDLER
 
 // get all images from content script
-const handleFetchImagesOnClick = (options) => fire(inExtension, renderApp, EVENTS.GET_IMGS, options);
+const handleLoadImages = (options) => fire(inExtension, renderApp, EVENTS.GET_IMGS, options);
 // get specific image
 const handleFetchImageOnClick = (payload) => fire(inExtension, renderApp, EVENTS.RECEIVE_IMAGE_BLOB, payload);
 // get all images from content script and zip it
@@ -56,7 +64,7 @@ const handleReverseBackgroundOnClick = (options) => {
 
 
 const initCall = () => {
-  handleFetchImagesOnClick(defaultOptions);
+  handleLoadImages(defaultOptions);
 };
 
 const renderApp = (err, data, init) => {
@@ -72,7 +80,7 @@ const renderApp = (err, data, init) => {
 
   ReactDOM.render(<div>
     <Header 
-      handleFetchImagesOnClick={handleFetchImagesOnClick}
+      handleLoadImages={handleLoadImages}
       handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
       handleReverseBackgroundOnClick={handleReverseBackgroundOnClick} />
     <div className={className}>
