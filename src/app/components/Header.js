@@ -9,8 +9,7 @@ import Select from 'react-select';
 
 const optionsSearch = [  
   {value: 'images', label: 'Images'},
-  {value: 'links', label: 'Links'},
-  {value: 'styles', label: 'Styles'}
+  {value: 'links', label: 'Links'}  
 ];
 
 const optionsImgTypes = [
