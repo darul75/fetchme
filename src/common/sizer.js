@@ -4,6 +4,7 @@ const sizer = {}, MAX = 10;
 
 module.exports = sizer;
 
+// Size options available
 sizer.options = [
   {value: 'all', label: 'All'},
   {value: 'big', label: 'Big'},

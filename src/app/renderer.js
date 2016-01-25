@@ -79,6 +79,7 @@ const renderApp = (err, data, init) => {
 
   ReactDOM.render(<div>
     <Header 
+      
       handleLoadImages={handleLoadImages}
       handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
       handleReverseBackgroundOnClick={handleReverseBackgroundOnClick} />

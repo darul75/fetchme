@@ -12,6 +12,11 @@ typer.options = [
   {value: 'landscape', label: 'Landscape'}
 ];
 
+/**
+* Validate wether image has to be processed or not.
+*
+* @param option
+*/
 typer.validate = (option, w, h) => {
   let flag = true;
 
