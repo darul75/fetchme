@@ -1,4 +1,7 @@
-import extensions from './../common/extensions';
+// DEPENDENCIES
+import extensions from '../../common/extensions';
+import {validate as validateSize} from '../../common/sizer';
+import {validate as validateType} from '../../common/typer';
 import processor from './processor';
 
 const dom = {};
@@ -109,11 +112,11 @@ dom.getDomImageInfo = (options) => {
         height = elt.naturalHeight;
         width = elt.naturalWidth;
         // 3) filter by option on size
-        if (!checkSize(osize, width, height)) {
+        if (!validateSize(osize, width, height)) {
           return null;
         }
         // 4) filter by option on type
-        if (!checkType(otype, width, height)) {
+        if (!validateType(otype, width, height)) {
           return null;
         }
       }
@@ -166,51 +169,6 @@ dom.getDomImageInfo = (options) => {
       return null;
     }
   };
-};
-
-const checkSize = (option, w, h) => {
-  let flag = true;
-
-  if (typeof(option) === 'string') return flag;
-
-  switch (option.value) {
-    case 'icon':
-      flag = w < 128 && h < 128;
-    break;
-    case 'medium':
-      flag = (w > 128 && w < 1000) || (h > 128 && h < 1000);
-    break;
-    case 'big':
-      flag = w > 1000 || h > 1000;
-    break;
-    default:      
-    break;
-  }
-  return flag;
-};
-
-const checkType = (option, w, h) => {
-  let flag = true;
-
-  if (typeof(option) === 'string') return flag;
-
-  switch (option.value) {
-    case 'picture':
-      flag = w < h;
-    break;
-    case 'square':
-      flag = w === h;
-    break;
-    case 'landscape':
-      flag = w > h;
-    break;
-    /*case 'panoramic':
-      flag = w > 1000 || h > 1000;
-    break;*/
-    default:      
-    break;
-  }
-  return flag;
 };
 
 const extractImageFromCSSRules = (cssRules) => {

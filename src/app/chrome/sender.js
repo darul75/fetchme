@@ -1,7 +1,5 @@
 'use strict';
 
-import events from 'events';
-
 // fire event to content script
 module.exports = (inExtension, cb, event, data) => {
   if (!inExtension) return;

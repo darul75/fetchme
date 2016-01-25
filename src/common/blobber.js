@@ -1,3 +1,5 @@
+'use strict';
+
 const blobber = {};
 
 module.exports = blobber;

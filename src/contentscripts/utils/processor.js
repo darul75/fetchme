@@ -1,5 +1,5 @@
 import fetcher from './fetcher';
-import sender from './chrome/sender';
+import sender from '../chrome/sender';
 
 const proc = {};
 

@@ -7,24 +7,14 @@ import ReactDOM from 'react-dom';
 // COMPONENTS
 import Select from 'react-select';
 
+// DEPENDENCIES
+import search from '../../common/search';
+import sizer from '../../common/sizer';
+import typer from '../../common/typer';
+
 const optionsSearch = [  
   {value: 'images', label: 'Images'},
-  {value: 'links', label: 'Links'}  
-];
-
-const optionsImgTypes = [
-  {value: 'all', label: 'All'},
-  {value: 'picture', label: 'Picture'},
-  {value: 'square', label: 'Square'},
-  {value: 'landscape', label: 'Landscape'}
-  /*{value: 'panoramic', label: 'Panoramic'}*/
-];
-
-const optionsImgSizes = [
-  {value: 'all', label: 'All'},
-  {value: 'big', label: 'Big'},
-  {value: 'medium', label: 'Medium'},
-  {value: 'icon', label: 'Icon'}
+  {value: 'links', label: 'Links'}
 ];
 
 class Header extends Component {
@@ -87,11 +77,11 @@ class Header extends Component {
           <legend>Options</legend>
           <ul className='options'>
             <li><p>Search for</p></li>
-            <li><Select name="form-image-search" value={this.state.search} options={optionsSearch} multi={true} onChange={this.handleOnChangedSelectSearch}/></li>
+            <li><Select name="form-image-search" value={this.state.search} options={search.options} multi={true} onChange={this.handleOnChangedSelectSearch}/></li>
             <li><p>Type</p></li>
-            <li><Select className='form-select' name="form-image-types" value={this.state.type} options={optionsImgTypes} onChange={this.handleOnChangedSelectImageType}/></li>
+            <li><Select className='form-select' name="form-image-types" value={this.state.type} options={typer.options} onChange={this.handleOnChangedSelectImageType}/></li>
             <li><p>Size</p></li>
-            <li><Select className='form-select' name="form-image-sizes" value={this.state.size} options={optionsImgSizes} onChange={this.handleOnChangedSelectImageSize}/></li>            
+            <li><Select className='form-select' name="form-image-sizes" value={this.state.size} options={sizer.options} onChange={this.handleOnChangedSelectImageSize}/></li>
             <li><span className='button' style={(this.state.whiteBackground) ? {backgroundColor: '#F7F3F3', marginLeft: '100px'} : {backgroundColor: '#fff', marginLeft: '100px'}} onClick={this.handleOnClickReverseBackground.bind(this, 'whiteBackground')} title='can not see well images, click here'>Black/White</span></li>
           </ul>
         </fieldset>    

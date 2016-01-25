@@ -49,19 +49,18 @@ if (!inExtension) {
 // ACTIONS HANDLER
 
 // get all images from content script
-const handleLoadImages = (options) => fire(inExtension, renderApp, EVENTS.GET_IMGS, options);
+const handleLoadImages = (options) => fire(inExtension, renderApp, EVENTS.APP_TO_CONTENT_SCRIPT.GET_IMGS, options);
 // get specific image
-const handleFetchImageOnClick = (payload) => fire(inExtension, renderApp, EVENTS.RECEIVE_IMAGE_BLOB, payload);
+const handleFetchImageOnClick = (payload) => fire(inExtension, renderApp, EVENTS.APP_TO_CONTENT_SCRIPT.RECEIVE_IMAGE_BLOB, payload);
 // get all images from content script and zip it
-const handleDownloadImagesZipOnClick = (options) => fire(inExtension, renderApp, EVENTS.ZIP_IMGS, options);
+const handleDownloadImagesZipOnClick = (options) => fire(inExtension, renderApp, EVENTS.APP_TO_CONTENT_SCRIPT.ZIP_IMGS, options);
 // get selected image details
-const handleImagePreviewOnClick = (payload) => fire(inExtension, renderApp, EVENTS.GET_IMG_DATA_URI, payload);
+const handleImagePreviewOnClick = (payload) => fire(inExtension, renderApp, EVENTS.APP_TO_CONTENT_SCRIPT.GET_IMG_DATA_URI, payload);
 // change app background color
 const handleReverseBackgroundOnClick = (options) => {
   whiteBackground = options.whiteBackground;
   renderApp();
 };
-
 
 const initCall = () => {
   handleLoadImages(defaultOptions);
