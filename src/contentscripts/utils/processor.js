@@ -42,7 +42,13 @@ proc.convertImageContentToDataUrl = (payload, cb) => {
       payload.height = height;
       payload.size = responsePayload.size;
 
-      canvas.canvasImagetoDataURL(cb, payload);
+      //canvas.canvasImagetoDataURL(cb, payload);
+
+      payload.type = 'image/png';
+      payload.extension = '.png';
+      payload.data = canvas.toDataURL().split(';base64,')[1];
+
+      return cb(null, payload);
 
     });
   }
@@ -52,7 +58,7 @@ proc.convertImageContentToDataUrl = (payload, cb) => {
 };
 
 /**
- * processImages() returns a new function to be used in forEach, map.. 
+ * processImages() returns a new function to be used in forEach, map..
  * will compute dataURI by http request if needed and callback when iteration finished
  *
  * @param {Number} number of images to process
@@ -67,14 +73,14 @@ proc.processImages = (limit) => {
   *
   * @param {imagePayload} current image
   */
-  return (imagePayload) => {    
+  return (imagePayload) => {
 
     // convert to dataUrl
     const cb = (err, payload, dataUrl) => {
       if (err) {
         limit--;
 
-        const prog = Math.round(((todo-limit) * 100) / todo);        
+        const prog = Math.round(((todo-limit) * 100) / todo);
         sender.sendProgression(prog);
 
         if (limit <= 0) {
@@ -84,8 +90,8 @@ proc.processImages = (limit) => {
         return;
       }
 
-      
-      const data = payload.dataUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
+
+      const data = payload.dataUrl || payload.blobUrl ? payload.data : dataUrl.replace('data:'+ payload.type+';base64,', '');
 
       const newBlob = {
         data: data,
@@ -97,7 +103,7 @@ proc.processImages = (limit) => {
       blobs.push(newBlob);
       limit--;
 
-      const prog = Math.round(((todo-limit) * 100) / todo);      
+      const prog = Math.round(((todo-limit) * 100) / todo);
       sender.sendProgression(prog);
 
       if (limit <= 0) {

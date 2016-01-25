@@ -15,8 +15,6 @@ module.exports = receiverHandler({
   }
 });
 
-
-
 // TODO try again worker, looks slow, JSON message serialiazing ?
 
 /*
@@ -28,9 +26,9 @@ if (chrome.runtime && window.Worker) {
 
 
   console.time("generating zip worker");
-  if (worker) {    
-    //var myWorker = new Worker("dist/bundle-worker.js");  
-    
+  if (worker) {
+    //var myWorker = new Worker("dist/bundle-worker.js");
+
     worker.postMessage([blobs]);
 
     worker.onmessage = function(e) {

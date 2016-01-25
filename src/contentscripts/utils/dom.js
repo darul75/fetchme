@@ -28,7 +28,7 @@ dom.getImageUrlFromStyles = () => {
   let urls = [];
   [].slice.call(document.styleSheets).forEach((stylesheet) => {
     if (!stylesheet.cssRules) return;
-    const cssRules = [].slice.call(stylesheet.cssRules);        
+    const cssRules = [].slice.call(stylesheet.cssRules);
     cssRules.forEach((cssRule) => {
       /*if (cssRule.type === 3) {
         const tmp = extractImageFromCSSRules(cssRule.styleSheet.cssRules || cssRule.styleSheet.rules);
@@ -40,16 +40,16 @@ dom.getImageUrlFromStyles = () => {
         urls = [...urls, ...tmp];
       }
       else {*/
-        var style = cssRule.style;      
+        var style = cssRule.style;
 
         if (style && style['background-image']) {
           var url = extractURLFromStyle(style['background-image']);
           if (isImageURL(url) && urls.indexOf(url) < 0) {
             urls.push(url);
           }
-        }  
-      /*}*/      
-    });    
+        }
+      /*}*/
+    });
   });
 
   urls = [...urls, ...dom.getImageUrlFromBackgroundImageProperty()];
@@ -67,12 +67,13 @@ dom.getImageUrlFromBackgroundImageProperty = () => {
   const elts = [...dom.getDomTags('figure'), ...dom.getDomTags('div')];
 
   [].slice.call(elts).forEach((elt) => {
-    
-    const url = window.getComputedStyle(elt).getPropertyValue('background-image');
-    if (isImageURL(url) && urls.indexOf(url) < 0) {
-      urls.push(url.replace(/url\(|\)/g, ''));
-    }    
-    
+
+    let url = window.getComputedStyle(elt).getPropertyValue('background-image');
+    url = url.replace(/url\(\'|url\(\"|\)|url\(|\'\)|\"\)/g, '');
+    if ((isImageURL(url) || isDataBlobUrlImageSrc(url)) && urls.indexOf(url) < 0) {
+      urls.push(url);
+    }
+
   });
   return urls;
 };
@@ -90,10 +91,10 @@ dom.getDomImageInfo = (options) => {
   /**
    * @param {Object} current iteration element
    * @param {NUmber} current iteration index
-   * returns {Object} imgInfo with relevant image details 
+   * returns {Object} imgInfo with relevant image details
    */
   return (elt, idx) => {
-    
+
     const type = typeof(elt);
 
     let src = '';
@@ -126,9 +127,9 @@ dom.getDomImageInfo = (options) => {
         if (!isImageURL(src)) {
           return null;
         }
-      }      
+      }
     }
-    
+
     const extension = src.split('.').pop();
     let filename = src.split('/').pop().replace('.'+extension, '');
     if (extension.indexOf('svg') >= 0) {
@@ -148,20 +149,25 @@ dom.getDomImageInfo = (options) => {
 
     if (urls.indexOf(src) < 0) {
       urls.push(src);
-      
-      if (isDataUrlImageSrc(src)) {        
+
+      if (isDataUrlImageSrc(src)) {
         // data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAA
         imgInfo.dataUrl = true;
         imgInfo.type = extensions[src.split(';base64,')[0].split('/')[1]];
-        imgInfo.extension = extension.indexOf('svg') >= 0 ? 'svg' : imgInfo.extension;        
+        imgInfo.extension = extension.indexOf('svg') >= 0 ? 'svg' : imgInfo.extension;
         imgInfo.data = src.split(';base64,')[1];
+      }
+      else if (isDataBlobUrlImageSrc(src)) {
+        imgInfo.blobUrl = true;
+        imgInfo.extension = 'png';
+        imgInfo.filename = 'blob_image_link_' + urls.length;
       }
       else if (extensions.hasOwnProperty(extension)) {
         imgInfo.type = extensions[extension];
       }
       else { // extension not clear, generated image
 
-      }      
+      }
 
       return imgInfo;
     }
@@ -175,7 +181,7 @@ const extractImageFromCSSRules = (cssRules) => {
   cssRules = [].slice.call(cssRules);
   const urls = [];
   cssRules.forEach((cssRule) => {
-    const style = cssRule.style;      
+    const style = cssRule.style;
     if (style && style['background-image']) {
       const url = extractURLFromStyle(style['background-image']);
       if (isImageURL(url)) {
@@ -202,3 +208,10 @@ const extractURLFromStyle = (url) => url.replace(/^url\(["']?/, '').replace(/["'
  * @return {Boolean} dataURI image or not
  */
 const isDataUrlImageSrc = (imgSrc) => imgSrc.indexOf('data:image') >= 0;
+
+/**
+ * isDataBlobUrlImageSrc() returns wether image is dataURI content.
+ *
+ * @return {Boolean} dataURI image or not
+ */
+const isDataBlobUrlImageSrc = (imgSrc) => imgSrc.indexOf('blob:http') >= 0;

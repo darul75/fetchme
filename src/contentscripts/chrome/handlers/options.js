@@ -7,11 +7,11 @@ import dom from '../../utils/dom';
  */
 module.exports = ({search}) => {
     // fetch all dom image from tags or styles
-  const imgTags = search.some((elt) => elt.value === 'images') ? dom.getDomTags('img') : [];  
+  const imgTags = search.some((elt) => elt.value === 'images') ? dom.getDomTags('img') : [];
   const linkTags = search.some((elt) => elt.value === 'links') ? dom.getDomTags('a') : [];
   let imgUrls = search.some((elt) => elt.value === 'styles') ? dom.getImageUrlFromStyles() : [];
-  
-  const urlImgTester = /^http|^data:image/;
+
+  const urlImgTester = /^http|^data:image|^blob:http/;
   const urlCssImgTester = /(?:url)\(((.*?))\)/gi;
   let extractedUrls = [];
 

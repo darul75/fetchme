@@ -1,9 +1,5 @@
 "use strict";
 
-import dom from './dom';
-import fetcher from './fetcher';
-import processor from './processor';
-
 import receiver from './chrome/receiver';
 
 // CHROME RUNTIME

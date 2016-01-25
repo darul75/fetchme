@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Dog it",
-  "description": "This extension fetch all images from your favourites pages.",
-  "version": "1.0.8",
+  "description": "This extension fetch all images from your favorites pages.",
+  "version": "1.1.0",
   "browser_action": {
     "default_icon": {"16": "zynga_16x16.png"},
     "default_popup": "popup.html"
