@@ -68,29 +68,41 @@ const initCall = () => {
 
 const renderApp = (err, data, init) => {
 
-  const cb = init ? initCall : () => {};
+  const cb = init ? initCall : () => {};  
 
 	if (data) {
-		if (data.links) links = data.links;
+		if (data.links) {
+      links = data.links;
+      if (!links.length) {
+        img = null;
+      }
+      
+    }
 		if (data.img) img = data.img;
 	}
 
   const className = whiteBackground ? '' : 'black-bg';
+  const left = 'left ' + className;
 
-  ReactDOM.render(<div>
-    <Header 
-      
-      handleLoadImages={handleLoadImages}
-      handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
-      handleReverseBackgroundOnClick={handleReverseBackgroundOnClick} />
-    <div className={className}>
-      <Links
-        links={links}
-        handleImagePreviewOnClick={handleImagePreviewOnClick}
-        />
-      <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />    
-    </div>
-    <p>Watch...,then download images</p>
+  ReactDOM.render(<div>    
+    <div>
+      <div className={left}>
+        <Canvas img={img} handleFetchImageOnClick={handleFetchImageOnClick} />    
+      </div>
+      <div className='right'>
+        <Header handleLoadImages={handleLoadImages}
+                handleDownloadImagesZipOnClick={handleDownloadImagesZipOnClick}
+                handleReverseBackgroundOnClick={handleReverseBackgroundOnClick} />        
+        <div className={className}>
+          <Links
+            links={links}
+            handleImagePreviewOnClick={handleImagePreviewOnClick}
+            />      
+        </div>
+        <p>Watch...,then download images</p>
+      </div>
+    </div>    
+    
     </div>,
     document.getElementById('main'),
     cb

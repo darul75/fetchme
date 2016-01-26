@@ -44,6 +44,7 @@ proc.convertImageContentToDataUrl = (payload, cb) => {
 
       //canvas.canvasImagetoDataURL(cb, payload);
 
+      payload.dataUrl = true;
       payload.type = 'image/png';
       payload.extension = '.png';
       payload.data = canvas.toDataURL().split(';base64,')[1];

@@ -6,7 +6,7 @@ import ReactDOM from 'react-dom';
 
 // https://gist.github.com/sebmarkbage/6f7da234174ab9f64cce
 
-const WIDTH_LIMIT = 350;
+const WIDTH_LIMIT = 300;
 
 class Canvas extends Component {
   constructor(props) {
@@ -20,7 +20,7 @@ class Canvas extends Component {
 
   componentDidUpdate() {
     let ctx = this.refs.canvas.getContext('2d');
-    ctx.clearRect(0, 0, 350, 1000);
+    ctx.clearRect(0, 0, WIDTH_LIMIT, 1000);
     this.paint(ctx);
   }
 
@@ -43,7 +43,7 @@ class Canvas extends Component {
     let extension = '';
     let filename = 'NA';
     let size = 'NA';
-    let width, w = 200;    
+    let width, w = WIDTH_LIMIT;
     let img = this.props.img;
 
     if (img) {
@@ -68,7 +68,10 @@ class Canvas extends Component {
         <div className='download-button'>
           <span className='button' onClick={this.props.handleFetchImageOnClick.bind(this, img)}>download me</span>
         </div>
-        <canvas onClick={this.props.handleFetchImageOnClick.bind(this, img)} ref='canvas' width={img.width} height={img.height}  />
+        <canvas 
+          onClick={this.props.handleFetchImageOnClick.bind(this, img)} 
+          ref='canvas' width={img.width} height={img.height} 
+          title='click to download image !' />
       </fieldset>
     );
   }

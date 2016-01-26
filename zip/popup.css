@@ -6,7 +6,7 @@ body {
 }
 
 canvas {
-  margin: 20px 0;
+  margin: 10px 0 0 0;
 }
 
 li {
@@ -44,8 +44,23 @@ span.button {
   cursor: pointer;
 }
 
+div.left, div.right {  
+  display: inline-block;  
+}
+
+div.left {
+  width: 340px;
+  top: 50px;
+  vertical-align: top;
+  position: relative;
+}
+
+div.right {
+  width: 400px;
+}
+
 #main {
-  width: 350px;  
+  width: 750px;
 }
 
 .black-bg {
@@ -78,7 +93,7 @@ span.button {
 ul.links {
   margin: 0;
   padding: 0;  
-  cursor: pointer;
+  cursor: pointer;  
 }
 
 li.link {
@@ -102,4 +117,9 @@ li.link {
 
 .download-button {
   text-align: left;
+}
+
+.form-select {
+  width: 150px;
+  display: inline-block;
 }
